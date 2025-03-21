@@ -1,11 +1,15 @@
-import expres from "express";
+import express, { json } from "express";
+import cors from "cors";
+import dotenv from "dotenv";
 
-const server = expres();
+const server = express();
 
-server.get("/get", (req, res)=>{
-    res.status(200).send("Endpoint funcionando!");
-})
+server.use(json());
+server.use(cors());
+dotenv.config();
 
-server.listen(3000,()=>{
-    console.log("Servidor escultando na porta 3000");
+const port=process.env.PORT;
+
+server.listen(port,()=>{
+    console.log(`Servidor em execução na porta ${port}!`);
 });
