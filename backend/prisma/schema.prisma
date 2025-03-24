@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String                @id @default(uuid())
+  name                String
+  email               String                @unique
+  cpf                 String                @unique
+  password            String
+  avatar              String
+  xp                  Int
+  level               Int
+  deletedAt           DateTime
+  UserArchievement    UserArchievement[]
+  Preference          Preference[]
+  Activity            Activity[]
+  ActivityParticipant ActivityParticipant[]
+
+  @@map("Users")
+}
+
+model UserArchievement {
+  id             String       @id @default(uuid())
+  archievementId String
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  archievement   Archievement @relation(fields: [archievementId], references: [id])
+
+  @@map("UserArchievements")
+}
+
+model Archievement {
+  id               String             @id @default(uuid())
+  name             String
+  criterion        String
+  UserArchievement UserArchievement[]
+
+  @@map("Archievements")
+}
+
+model Preference {
+  id           String       @id @default(uuid())
+  userId       String
+  typeId       String
+  user         User         @relation(fields: [userId], references: [id])
+  activityType ActivityType @relation(fields: [typeId], references: [id])
+
+  @@map("Preferences")
+}
+
+model Activity {
+  id                  String                @id @default(uuid())
+  title               String
+  description         String
+  typeId              String
+  confirmationCode    String
+  image               String
+  sheduledDate        DateTime
+  createdAt           DateTime
+  deletedAt           DateTime
+  completedAt         DateTime
+  private             Boolean
+  creatorId           String
+  user                User                  @relation(fields: [creatorId], references: [id])
+  activity            ActivityType          @relation(fields: [typeId], references: [id])
+  activityAddresse    ActivityAddresse?
+  ActivityParticipant ActivityParticipant[]
+
+  @@map("Activities")
+}
+
+model ActivityAddresse {
+  id         String   @id @default(uuid())
+  activityId String   @unique
+  latitude   Float
+  longitude  Float
+  Activity   Activity @relation(fields: [activityId], references: [id])
+
+  @@map("ActivityAddresses")
+}
+
+model ActivityParticipant {
+  id          String   @id @default(uuid())
+  activityId  String
+  userId      String
+  aproved     Boolean
+  confirmedAt DateTime
+  activity    Activity @relation(fields: [activityId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("ActivityParticipants")
+}
+
+model ActivityType {
+  id          String       @id @default(uuid())
+  name        String
+  description String
+  image       String
+  Preference  Preference[]
+  Activity    Activity[]
+
+  @@map("ActivityTypes")
+}
