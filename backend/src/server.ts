@@ -1,6 +1,8 @@
-import express, { json } from "express";
-import cors from "cors";
-import dotenv from "dotenv";
+import express, { json } from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import authController from './controllers/auth-controller';
+import { errorHandler } from './middleware/errorMiddleware';
 
 const server = express();
 
@@ -8,8 +10,12 @@ server.use(json());
 server.use(cors());
 dotenv.config();
 
-const port=process.env.PORT;
+authController(server);
 
-server.listen(port,()=>{
-    console.log(`Servidor em execução na porta ${port}!`);
+server.use(errorHandler);
+
+const port = process.env.PORT;
+
+server.listen(port, () => {
+  console.log(`Servidor em execução na porta ${port}!`);
 });
