@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { findUserIsActive } from '../services/user-service';
+import { ErrorRequest } from '../types/error/error-request';
 const jwtSecret = process.env.JWT_SECRET!;
 
 declare module 'express-serve-static-core' {
@@ -8,7 +10,7 @@ declare module 'express-serve-static-core' {
   }
 }
 
-export default function authGuard(
+export default async function authGuard(
   request: Request,
   response: Response,
   next: NextFunction,
@@ -16,17 +18,30 @@ export default function authGuard(
   const authHeader = request.headers.authorization;
 
   if (!authHeader) {
-    response
-      .status(401)
-      .send('É preciso estar autenticado para acessar esse endpoint');
-    return;
+    const error: ErrorRequest = {
+      message: "É preciso estar autenticado para acessar esse endpoint",
+      status: 401,
+    };
+    return next(error);
   }
+
   try {
-    const user = jwt.verify(authHeader, jwtSecret) as JwtPayload;
-    request.userId = user.id as string;
+    const decoded = jwt.verify(authHeader, jwtSecret) as JwtPayload;
+    request.userId = decoded.id as string;
+    const isActive = await findUserIsActive(request.userId);
+    if (!isActive) {
+      const error: ErrorRequest = {
+        message: "Esta conta foi desativada e não pode ser utilizada",
+        status: 403,
+      };
+      return next(error);
+    }
     next();
   } catch (error: any) {
-    response.status(401).send('Token inválido ou expirado');
-    return;
+    const errorResponse: ErrorRequest = {
+      message: 'Token inválido ou expirado',
+      status: 401,
+    };
+    return next(errorResponse);
   }
 }

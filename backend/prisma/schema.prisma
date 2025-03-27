@@ -69,8 +69,8 @@ model Activity {
   image               String
   sheduledDate        DateTime
   createdAt           DateTime
-  deletedAt           DateTime
-  completedAt         DateTime
+  deletedAt           DateTime?
+  completedAt         DateTime?
   private             Boolean
   creatorId           String
   user                User                  @relation(fields: [creatorId], references: [id])
@@ -96,7 +96,7 @@ model ActivityParticipant {
   activityId  String
   userId      String
   aproved     Boolean
-  confirmedAt DateTime
+  confirmedAt DateTime?
   activity    Activity @relation(fields: [activityId], references: [id])
   user        User     @relation(fields: [userId], references: [id])
 

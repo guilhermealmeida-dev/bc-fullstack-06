@@ -1,21 +1,33 @@
 import prismaClient from '../prisma/prisma-client';
 import userCriation from '../types/user/user-creation';
-import userData from '../types/user/user-update';
+import userUpdate from '../types/user/user-data-update';
 
-export async function getById(id: string) {
+export async function getById(userId: string) {
     return await prismaClient.user.findUnique({
         where: {
-            id: id,
+            id: userId,
         },
         include: {
-            UserArchievement: false,
+            UserArchievement: true,
         },
     });
 }
+
+export async function getIsActiveById(userId: string): Promise<boolean> {
+    const user = await prismaClient.user.findUnique({
+        where: { id: userId },
+        select: { deletedAt: true },
+    });
+    return user ? user.deletedAt === null : false;
+}
+
 export async function getByEmail(email: string) {
     return await prismaClient.user.findUnique({
         where: {
             email: email,
+        },
+        include: {
+            UserArchievement: true,
         },
     });
 }
@@ -28,8 +40,8 @@ export async function create(data: userCriation) {
         },
     });
 }
-    
-export async function update(data: userData, id: string) {
+
+export async function update(data: userUpdate, id: string) {
     return await prismaClient.user.update({
         data: data,
         where: {

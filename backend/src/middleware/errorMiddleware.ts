@@ -1,8 +1,4 @@
-import {
-    PrismaClientInitializationError,
-    PrismaClientKnownRequestError,
-} from '@prisma/client/runtime/library';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from "express";
 
 export function errorHandler(
     err: any,
@@ -12,18 +8,12 @@ export function errorHandler(
 ) {
     console.error(err);
 
-    if (err instanceof PrismaClientInitializationError) {
-        err.message = 'Erro ao conectar com o banco de dados.';
-        (err as any).status = 500;
-    } else if (err instanceof PrismaClientKnownRequestError) {
-        err.message = err.message || 'Erro desconhecido do Prisma.';
-        (err as any).status = 400;
-    }
+
     const statusCode = err.status || 500;
-    const message = err.message || 'Erro interno do servidor';
+    const error = statusCode === 500 ? "Erro inesperado" : err.message;
 
     res.status(statusCode).json({
-        message,
+        error,
         errors: err.errors || undefined,
     });
 }
