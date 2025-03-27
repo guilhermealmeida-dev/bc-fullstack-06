@@ -19,7 +19,7 @@ export default async function authGuard(
 
   if (!authHeader) {
     const error: ErrorRequest = {
-      message: "É preciso estar autenticado para acessar esse endpoint",
+      message: "Autenticação necessária",
       status: 401,
     };
     return next(error);
@@ -28,13 +28,17 @@ export default async function authGuard(
   try {
     const decoded = jwt.verify(authHeader, jwtSecret) as JwtPayload;
     request.userId = decoded.id as string;
-    const isActive = await findUserIsActive(request.userId);
-    if (!isActive) {
-      const error: ErrorRequest = {
-        message: "Esta conta foi desativada e não pode ser utilizada",
-        status: 403,
-      };
-      return next(error);
+    try {
+      const isActive = await findUserIsActive(request.userId);
+      if (!isActive) {
+        const error: ErrorRequest = {
+          message: "Esta conta foi desativada e não pode ser utilizada",
+          status: 403,
+        };
+        return next(error);
+      }
+    } catch (dbError: any) {
+      return next({status:500});
     }
     next();
   } catch (error: any) {

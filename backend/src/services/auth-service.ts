@@ -1,5 +1,5 @@
 import { create, getByEmail } from "../repository/user-repository";
-import { PrismaClientKnownRequestError, PrismaClientValidationError } from "@prisma/client/runtime/library";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import userCriation from "../types/user/user-creation";
 import authData from "../types/user/auth-data";
 import bcrypt from "bcryptjs";
@@ -9,6 +9,7 @@ export async function createUser(data: userCriation) {
     try {
         const encriptedPassworf = await bcrypt.hash(data.password, 10);
         data.password = encriptedPassworf;
+        data.avatar=`${process.env.SERVER_URL}:${process.env.PORT}/public/images/profile.jpeg`;
         return await create(data);
     } catch (error: any) {
         if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {

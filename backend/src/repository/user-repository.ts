@@ -9,7 +9,11 @@ export async function getById(userId: string) {
         },
         include: {
             UserArchievement: true,
+
         },
+        omit: {
+            deletedAt: true,
+        }
     });
 }
 
@@ -34,9 +38,17 @@ export async function getByEmail(email: string) {
 
 export async function create(data: userCriation) {
     return await prismaClient.user.create({
+        data: data
+    });
+}
+
+export async function uploadProfile(path: string, userId: string) {
+    return await prismaClient.user.update({
         data: {
-            ...data,
-            avatar: 'Avatarzinho',
+            avatar: path
+        },
+        where: {
+            id: userId,
         },
     });
 }

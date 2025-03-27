@@ -6,5 +6,5 @@ const createValidation = z.object(
         cpf: z.string({ message: "O campo 'cpf' é obrigatório" }).length(11, { message: "O CPF deve ter 11 digitos" }),
         password: z.string({ message: "O campo 'password' é obrigatório" }).min(6, { message: "A senha deve ter pelo menos 6 caracteres" }),
     }
-);
+).strict();
 export default createValidation;
