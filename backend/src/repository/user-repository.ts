@@ -1,3 +1,4 @@
+import { string } from 'zod';
 import prismaClient from '../prisma/prisma-client';
 import userCriation from '../types/user/user-creation';
 import userUpdate from '../types/user/user-data-update';
@@ -53,12 +54,24 @@ export async function uploadProfile(path: string, userId: string) {
     });
 }
 
-export async function update(data: userUpdate, id: string) {
+export async function update(data: userUpdate, userId: string) {
     return await prismaClient.user.update({
         data: data,
         where: {
-            id,
+            id: userId,
         },
+    });
+}
+
+export async function desactiveAcaunt(userId: string) {
+    const currentDate = new Date().toISOString();
+    return await prismaClient.user.update({
+        data: {
+            deletedAt: currentDate,
+        },
+        where: {
+            id: userId,
+        }
     });
 }
 

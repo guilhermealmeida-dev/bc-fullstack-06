@@ -1,5 +1,5 @@
 import { Express, Router, NextFunction } from "express";
-import { getUser, updateUser } from "../services/user-service";
+import { defineUserPreferences, desactiveUserAcaunt, getUser, getUserPreferences, updateUser } from "../services/user-service";
 import authGuard from "../middleware/auth-guard";
 import requestBodyValidator from "../middleware/request-body-validator";
 import updateUserValidation from "../validations/update-user-validation";
@@ -21,8 +21,36 @@ function userController(server: Express) {
             next(error);
         }
     });
-    router.get("/preferences", (request, response) => { });
-    router.post("/preferences/define", (request, response) => { });
+
+    router.get("/preferences", async (request, response,next:NextFunction) => {
+        try {
+            const userId = request.userId as string;
+            const preferences = await getUserPreferences(userId);
+            response.status(200).send(preferences);
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    router.post("/preferences/define", async (request, response, next: NextFunction) => {
+        const userId = request.userId as string;
+        const preferences = request.body;
+        try {
+            const isInValid=await defineUserPreferences(preferences, userId);
+            console.log(isInValid);
+            if(isInValid){
+                const erro: ErrorRequest = {
+                    message: "Um ou mais IDs são inválidos",
+                    status: 400
+                }
+                next(erro);
+                return;
+            }
+            response.status(200).json({ message: "Preferências atualizadas com sucesso" });
+        } catch (error) {
+            next(error)
+        }
+    });
 
     router.put("/avatar", upload.single("avatar"), async (request, response, next: NextFunction) => {
         try {
@@ -57,7 +85,15 @@ function userController(server: Express) {
         }
     });
 
-    router.delete("/deactivate/:id", async (request, response) => { });
+    router.delete("/deactivate/", async (request, response,next:NextFunction) => { 
+        try {
+            const userId=request.userId as string;
+            await desactiveUserAcaunt(userId);
+            response.status(200).json({message:"Conta desativada com sucesso" })
+        } catch (error) {
+            next(error)
+        }
+    });
 
     server.use("/user", router);
 }

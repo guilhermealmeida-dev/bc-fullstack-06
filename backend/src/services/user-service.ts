@@ -1,8 +1,10 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { getById, getIsActiveById, update, uploadProfile } from "../repository/user-repository";
+import { desactiveAcaunt, getById, getIsActiveById, update, uploadProfile } from "../repository/user-repository";
 import userDataUpdate from "../types/user/user-data-update";
 import bcrypt from "bcryptjs";
 import { ErrorRequest } from "../types/error/error-request";
+import { createPreferences, deletePreferencesByUserId, getPreferencesById } from "../repository/preference-repository";
+import { getValidActivityTypes } from "../repository/activity-type-repository";
 export async function getUser(id: string) {
     try {
         const user = await getById(id);
@@ -23,6 +25,35 @@ export async function getUser(id: string) {
 export async function findUserIsActive(id: string) {
     try {
         return await getIsActiveById(id);
+    } catch (error) {
+        throw error;
+    }
+}
+
+export async function getUserPreferences(userId: string) {
+    try {
+        return await getPreferencesById(userId);
+    } catch (error) {
+        throw error;
+    }
+}
+export async function defineUserPreferences(preferences: string[], userId: string) {
+    try {
+        const validTypeIds = await getValidActivityTypes();
+        const invalidType = preferences.find(typeId => !validTypeIds.includes(typeId));
+
+        if (invalidType) {
+            return true;
+        }
+
+        const preferencesData = preferences.map((typeId) => ({
+            userId,
+            typeId,
+        }));
+
+        await deletePreferencesByUserId(userId);
+        await createPreferences(preferencesData);
+        return false;
     } catch (error) {
         throw error;
     }
@@ -56,6 +87,14 @@ export async function updateUser(data: userDataUpdate, id: string) {
             }
             throw erro;
         }
+        throw error;
+    }
+}
+
+export async function desactiveUserAcaunt(userId:string) {
+    try {
+        return await desactiveAcaunt(userId);
+    } catch (error) {
         throw error;
     }
 }
