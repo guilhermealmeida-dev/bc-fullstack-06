@@ -6,3 +6,4 @@ export async function getValidActivityTypes() {
     });
     return validTypes.map(type => type.id);
 }
+

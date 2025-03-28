@@ -18,12 +18,12 @@ services:
       AWS_REGION: us-east-1
       AWS_ACCESS_KEY: test
       AWS_SECRET_ACCESS_KEY: test
-  api:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgresql
-      - localstack
+  # api:
+  #   build: 
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - postgresql
+  #     - localstack

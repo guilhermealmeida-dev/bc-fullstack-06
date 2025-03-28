@@ -6,6 +6,8 @@ import { errorHandler } from './middleware/errorMiddleware';
 import userController from './controllers/user-controller';
 import { createBucket } from './services/s3-service';
 import path from "path";
+import swagger from "swagger-ui-express";
+import docs from "./docs/swagger.json";
 
 const server = express();
 
@@ -18,8 +20,11 @@ userController(server);
 
 server.use(errorHandler);
 
-
 createBucket();
+
+server.use("/api-docs/", swagger.serve, swagger.setup(docs));
+
+
 server.use("/public", express.static(path.join(__dirname, "../public")));
 
 const port = process.env.PORT;
