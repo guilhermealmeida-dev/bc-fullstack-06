@@ -8,6 +8,7 @@ import { createBucket } from './services/s3-service';
 import path from "path";
 import swagger from "swagger-ui-express";
 import docs from "./docs/swagger.json";
+import { activityController } from './controllers/activity-controller';
 
 const server = express();
 
@@ -17,6 +18,7 @@ dotenv.config();
 
 authController(server);
 userController(server);
+activityController(server);
 
 server.use(errorHandler);
 
