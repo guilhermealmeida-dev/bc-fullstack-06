@@ -7,3 +7,7 @@ export async function getValidActivityTypes() {
     return validTypes.map(type => type.id);
 }
 
+export async function getActivityTypes() {
+    return await prismaClient.activityType.findMany();
+}
+

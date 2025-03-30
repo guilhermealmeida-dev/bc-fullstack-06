@@ -1,15 +1,25 @@
 import prismaClient from "../prisma/prisma-client";
 
 export async function getPreferencesById(userId: string) {
-    return await prismaClient.activityType.findMany({
+    const preferences = await prismaClient.preference.findMany({
         where: {
-            Preference: {
-                some: {
-                    userId: userId,
-                },
-            },
+            userId,
+        },
+        select: {
+            activityType: true,
         },
     });
+
+    return preferences.map((preference) => preference.activityType);
+}
+
+export async function getUserPreferencesTypeIds(userId: string) {
+    const preferences = await prismaClient.preference.findMany({
+        where: { userId },
+        select: { typeId: true },
+    });
+    console.log(preferences);
+    return preferences.map(preference => preference.typeId);
 }
 
 export async function deletePreferencesByUserId(userId: string) {
