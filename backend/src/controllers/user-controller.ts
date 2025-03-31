@@ -37,7 +37,6 @@ function userController(server: Express) {
         const preferences = request.body;
         try {
             const isInValid=await defineUserPreferences(preferences, userId);
-            console.log(isInValid);
             if(isInValid){
                 const erro: ErrorRequest = {
                     message: "Um ou mais IDs são inválidos",

@@ -5,6 +5,8 @@ import bcrypt from "bcryptjs";
 import { ErrorRequest } from "../types/error/error-request";
 import { createPreferences, deletePreferencesByUserId, getPreferencesById } from "../repository/preference-repository";
 import { getValidActivityTypes } from "../repository/activity-type-repository";
+import { assignAchievementToUser, hasUserAchieved } from "../repository/user-archievement-repository";
+import { findAchievementByName } from "../repository/archievement-repository";
 export async function getUser(id: string) {
     try {
         const user = await getById(id);
@@ -97,4 +99,36 @@ export async function desactiveUserAcaunt(userId:string) {
     } catch (error) {
         throw error;
     }
+}
+
+export async function giveXpService(userId: string, xpToAdd: number) {
+    const user =await getUser(userId);
+
+    const newXp = user.xp + xpToAdd;
+
+    let newLevel = user.level;
+    if (newXp >= 1000) { 
+        newLevel += 1;
+    }
+    const updatedUser = await update({xp:newXp,level:newLevel},userId);
+
+    return updatedUser;
+}
+
+export async function giveAchievementService(userId: string, achievementName: string,xp:number) {
+    const existingAchievement = await hasUserAchieved(userId,achievementName);
+
+    if (existingAchievement) {
+        throw {status:500};
+    }
+
+    const achievement = await findAchievementByName(achievementName);
+
+    if (!achievement) {
+        throw {status:500};
+    }
+
+    await assignAchievementToUser(userId, achievement.id);
+    await giveXpService(userId, xp);
+    return achievement;
 }

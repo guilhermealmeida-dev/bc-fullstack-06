@@ -95,7 +95,7 @@ model ActivityParticipant {
   id          String   @id @default(uuid())
   activityId  String
   userId      String
-  aproved     Boolean
+  aproved     Boolean?
   confirmedAt DateTime?
   activity    Activity @relation(fields: [activityId], references: [id])
   user        User     @relation(fields: [userId], references: [id])

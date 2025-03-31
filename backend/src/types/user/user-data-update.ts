@@ -3,7 +3,7 @@ type userDataUpdate = {
     email?: string;
     password?: string;
     cpf?: never; 
-    level?: never;
-    xp?: never;
+    level?: number;
+    xp?: number;
 };
 export default userDataUpdate;

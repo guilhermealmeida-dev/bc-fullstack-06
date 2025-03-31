@@ -18,7 +18,6 @@ export async function getUserPreferencesTypeIds(userId: string) {
         where: { userId },
         select: { typeId: true },
     });
-    console.log(preferences);
     return preferences.map(preference => preference.typeId);
 }
 
