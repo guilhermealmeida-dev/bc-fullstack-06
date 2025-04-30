@@ -1,0 +1,11 @@
+Instruções para executar o back end oficial:
+
+1. Inicialize o Docker;
+
+2. Baixe o arquivo compose.yml anexado;
+
+3. Abra a pasta onde o arquivo compose.yml esta localizado em um terminal;
+
+4. Execute, no terminal, o comando 'docker compose up -d';
+
+5. Aguarde todos os containers serem executados corretamente.
