@@ -5,21 +5,23 @@ import {
   TouchableOpacity,
   ViewStyle,
 } from 'react-native';
-import { styles } from './style';
+import {styles} from './style';
 
 type CustomButtonProps = {
   title: string;
   onPress: (event: GestureResponderEvent) => void;
   buttonStyle?: ViewStyle;
-  textStyle?:TextStyle;
+  textStyle?: TextStyle;
+  disabled: boolean;
 };
 
 function CustomButton(props: CustomButtonProps) {
   return (
     <TouchableOpacity
       style={[styles.button, props.buttonStyle]}
+      disabled={props.disabled}
       onPress={props.onPress}>
-      <Text style={[styles.text,props.textStyle]}>{props.title}</Text>
+      <Text style={[styles.text, props.textStyle]}>{props.title}</Text>
     </TouchableOpacity>
   );
 }

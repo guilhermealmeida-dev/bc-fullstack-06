@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 import Fonts from '../../theme/fonts';
 
 export const styles = StyleSheet.create({
@@ -38,5 +38,19 @@ export const styles = StyleSheet.create({
   required: {
     color: '#E7000B',
     marginLeft: 2,
+  },
+  error: {
+    color: 'red',
+    marginTop: 4,
+    marginLeft: 4,
+  },
+  inputWrapper: {
+    position: 'relative',
+    width: '100%',
+  },
+  iconWrapper: {
+    position: 'absolute',
+    right: 15,
+    top: 16,
   },
 });

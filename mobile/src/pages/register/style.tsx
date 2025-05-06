@@ -4,30 +4,19 @@ import Fonts from '../../theme/fonts';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    gap: 20,
   },
   containerHeader: {
     justifyContent: 'space-between',
     alignItems: 'center',
     textAlign: 'left',
     width: '100%',
-    height: 256,
-  },
-  containerHeaderLogo: {
-    alignItems: 'center',
-    gap: 8,
   },
   containerHeaderTitle: {
     alignItems: 'flex-start',
     gap: 10,
     width: '100%',
-  },
-  logo: {
-    gap: 8,
-    width: 143,
-    height: 65,
   },
   containerForm: {
     width: '100%',

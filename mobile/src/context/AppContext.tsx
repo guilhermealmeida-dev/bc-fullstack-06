@@ -6,12 +6,14 @@ type AppContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
   isLoged: boolean;
+  localError:boolean;
 };
 
 const AppContext = createContext<AppContextType>({
   user: null,
   setUser: () => {},
   isLoged: false,
+  localError:false,
 });
 
 type Props = {
@@ -27,6 +29,7 @@ export function AppProvider({ children }: Props) {
         user,
         setUser,
         isLoged: !!user,
+        localError:false,
       }}
     >
       {children}

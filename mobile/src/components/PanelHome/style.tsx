@@ -4,8 +4,8 @@ import Fonts from '../../theme/fonts';
 export const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
-    backgroundColor: 'red',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     width: 377,
     height: 64.28,
     top: 50,
@@ -13,7 +13,6 @@ export const styles = StyleSheet.create({
   },
   containerText: {
     flexDirection: 'column',
-    backgroundColor: 'green',
   },
   mensage: {
     fontFamily: Fonts.DMSans,
@@ -29,9 +28,34 @@ export const styles = StyleSheet.create({
     letterSpacing: 0,
     color: '#FFFFFF',
   },
-  profile: {
-    width: 100,
-    height:100,
-    borderRadius: 100,
+  containerProfile:{
+    flexDirection:'row',
+    justifyContent:'center',
+    alignContent:'center',
+    alignItems:'center',
+    gap:20,
+  },
+  containerProfileIcon:{
+    flexDirection:'row',
+    justifyContent:'center',
+    alignContent:'center',
+    borderRadius:5,
+    borderWidth:1,
+    borderColor:'#FFF',
+    paddingVertical:8,
+    paddingHorizontal:12,
+    gap:6,
+  },
+  containerProfileIconText:{
+    color:'#FFF',
+    fontFamily:Fonts.BebasNeue,
+    fontSize:14,
+    fontWeight:400,
+  },
+  containerProfileAvatar: {
+    width: 58,
+    height: 58,
+    borderRadius:58/2,
+    overflow: 'hidden',
   },
 });

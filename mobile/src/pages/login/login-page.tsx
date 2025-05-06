@@ -1,59 +1,71 @@
-import React, {useContext, useState} from 'react';
+import React from 'react';
 import {View, Text} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import CustomTextInput from '../../components/CustomTextInput/CustomTextInput';
-import CustomButton from '../../components/CustomButton/CustomButton';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {useForm, Controller} from 'react-hook-form';
+import {yupResolver} from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+
+import CustomTextInput from '../../components/CustomTextInput/CustomTextInput';
+import CustomButton from '../../components/CustomButton/CustomButton';
 import CustomTextLink from '../../components/CustomTextLink/CustomTextLink';
 import CustomTitle from '../../components/CustomTitle/CustomTItle';
 import CustomImage from '../../components/CustomImage/CustomImage';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+
 import {styles} from './style';
-import AppContext from '../../context/AppContext';
 import {User} from '../../types/user';
 import {RootStackParamList} from '../../routes/app-routes';
+import api from '../../lib/axios';
+import {useApp} from '../../hooks/useApp';
 
-type LoginPageProp = NativeStackNavigationProp<RootStackParamList, 'LoginPage'>;
+type RegisterPageNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'LoginPage'
+>;
 
-function LoginPage() {
-  const navigation = useNavigation<LoginPageProp>();
-  const {setUser} = useContext(AppContext);
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  async function handleLogin() {
+type FormValues = {
+  email: string;
+  password: string;
+};
+
+const schema = yup.object({
+  email: yup.string().email('Email inválido').required('Campo obrigatório'),
+  password: yup.string().required('Campo obrigatório'),
+});
+
+function RegisterPage() {
+  const navigation = useNavigation<RegisterPageNavigationProp>();
+  const {setUser} = useApp();
+
+  const {
+    control,
+    handleSubmit,
+    setError,
+    formState: {errors, isSubmitting},
+  } = useForm<FormValues>({
+    resolver: yupResolver(schema),
+  });
+
+  async function onSubmit(data: FormValues) {
     try {
-      const response = await fetch('http://192.168.122.1:3000/auth/sign-in', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          password: senha,
-        }),
-      });
+      const response = await api.post('/auth/sign-in', data);
 
-      if (!response.ok) {
-        console.log(response.body);
-        throw new Error('Erro ao fazer login');
-      }
-
-      const data = await response.json();
-
-      const user: User = {
-        id: data.id,
-        name: data.name,
-        avatar: data.avatar,
-        xp: data.xp,
-        level: data.level,
-        email: data.email,
-        token: data.token,
-      };
+      const user: User = response.data;
       setUser(user);
       navigation.replace('HomePage');
-    } catch (error) {
-      console.error('Erro no login:', error);
+    } catch (error: any) {
+      const msg =
+        error.response?.data?.error || 'Erro ao conectar com o servidor';
+
+      if (msg.toLowerCase().includes('usuário')) {
+        setError('email', {message: msg});
+      } else if (msg.toLowerCase().includes('senha')) {
+        setError('password', {message: msg});
+      } else {
+        console.error('Erro no login:', msg);
+      }
     }
   }
 
@@ -62,7 +74,7 @@ function LoginPage() {
       <KeyboardAwareScrollView
         contentContainerStyle={styles.keybord}
         keyboardShouldPersistTaps="handled"
-        enableOnAndroid={true}
+        enableOnAndroid
         extraScrollHeight={20}>
         <View style={styles.container}>
           <View style={styles.containerHeader}>
@@ -78,27 +90,48 @@ function LoginPage() {
               </Text>
             </View>
           </View>
+
           <View style={styles.containerForm}>
             <View style={styles.containerInput}>
-              <CustomTextInput
-                keyboardType="email-address"
-                label="Email"
-                placeholder="Ex.: nome@email.com"
-                required={true}
-                value={email}
-                onChangeText={text => setEmail(text)}
+              <Controller
+                control={control}
+                name="email"
+                render={({field: {onChange, value}}) => (
+                  <CustomTextInput
+                    keyboardType="email-address"
+                    label="Email"
+                    placeholder="Ex.: nome@email.com"
+                    required
+                    value={value}
+                    onChangeText={onChange}
+                    error={errors.email?.message}
+                  />
+                )}
               />
-              <CustomTextInput
-                label="Senha"
-                placeholder="Ex.: nome123"
-                secureTextEntry={true}
-                required={true}
-                value={senha}
-                onChangeText={text => setSenha(text)}
+
+              <Controller
+                control={control}
+                name="password"
+                render={({field: {onChange, value}}) => (
+                  <CustomTextInput
+                    label="Senha"
+                    placeholder="Ex.: nome123"
+                    secureTextEntry
+                    required
+                    value={value}
+                    onChangeText={onChange}
+                    error={errors.password?.message}
+                  />
+                )}
               />
             </View>
+
             <View style={styles.containerNavigation}>
-              <CustomButton title={'Entrar'} onPress={() => handleLogin()} />
+              <CustomButton
+                title="Entrar"
+                onPress={handleSubmit(onSubmit)}
+                disabled={isSubmitting}
+              />
               <CustomTextLink
                 text="Ainda não tem conta?"
                 textlink="Cadastre-se"
@@ -112,4 +145,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default RegisterPage;
