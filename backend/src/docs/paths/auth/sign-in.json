@@ -1,0 +1,51 @@
+{
+  "post": {
+    "summary": "Login de usuário",
+    "description": "Busca dados do usuário e retorna o token de autenticação",
+    "tags": ["Auth"],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "../../components/schemas.json#/LoginSchema"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../components/schemas.json#/LoginResponseSchema"
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "../../components/responses.json#/BadRequeste"
+      },
+      "401": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Senha incorreta."
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../components/responses.json#/InternalServerError"
+      }
+    }
+  }
+}

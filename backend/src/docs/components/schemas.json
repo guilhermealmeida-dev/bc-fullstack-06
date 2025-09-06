@@ -1,0 +1,114 @@
+{
+  "UserCreateSchema": {
+    "title": "UserCreateSchema",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Nome completo do usuário"
+      },
+      "email": {
+        "type": "string",
+        "format": "email",
+        "description": "Endereço de e-mail válido do usuário"
+      },
+      "cpf": {
+        "type": "string",
+        "pattern": "^[0-9]{11}$",
+        "description": "Número de CPF do usuário (somente números, 11 dígitos)"
+      },
+      "password": {
+        "type": "string",
+        "format": "password",
+        "description": "Senha de acesso do usuário"
+      }
+    },
+    "required": ["name", "email", "cpf", "password"]
+  },
+
+  "LoginResponseSchema": {
+    "type": "object",
+    "title": "LoginResponseSchema",
+    "properties": {
+      "token": {
+        "type": "string",
+        "description": "JWT de autenticação do usuário"
+      },
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Identificador único do usuário"
+      },
+      "name": {
+        "type": "string",
+        "description": "Nome do usuário"
+      },
+      "email": {
+        "type": "string",
+        "format": "email",
+        "description": "Endereço de e-mail do usuário"
+      },
+      "cpf": {
+        "type": "string",
+        "pattern": "^[0-9]{11}$",
+        "description": "Número de CPF do usuário (somente números, 11 dígitos)"
+      },
+      "avatar": {
+        "type": "string",
+        "format": "uri",
+        "description": "URL da imagem de avatar do usuário"
+      },
+      "xp": {
+        "type": "integer",
+        "example": 0,
+        "description": "Quantidade de pontos de experiência (XP) do usuário"
+      },
+      "level": {
+        "type": "integer",
+        "example": 0,
+        "description": "Nível atual do usuário baseado em XP"
+      },
+      "archievements": {
+        "type": "array",
+        "description": "Lista de conquistas desbloqueadas pelo usuário",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Nome da conquista"
+            },
+            "criterion": {
+              "type": "string",
+              "description": "Critério que define a conquista"
+            }
+          }
+        },
+        "example": [
+          {
+            "name": "string",
+            "criterion": "string"
+          }
+        ]
+      }
+    }
+  },
+
+  "LoginSchema": {
+    "type": "object",
+    "title": "LoginSchema",
+    "properties": {
+      "email": {
+        "type": "string",
+        "format": "email",
+        "description": "Endereço de e-mail do usuário"
+      },
+      "password": {
+        "type": "string",
+        "format": "password",
+        "description": "Senha de acesso do usuário"
+      }
+    },
+    "required": ["email", "password"]
+  }
+}

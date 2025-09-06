@@ -1,0 +1,35 @@
+{
+  "InternalServerError": {
+    "description": "Internal Server Error",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "string",
+              "example": "Erro interno no servidor"
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "BadRequeste": {
+    "description": "Bad Requeste",
+    "content": {
+      "application/json": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "string",
+              "example": "Informe os campos obrigatórios corretamente."
+            }
+          }
+        }
+      }
+    }
+  }
+}

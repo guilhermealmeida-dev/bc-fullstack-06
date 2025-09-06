@@ -6,10 +6,9 @@ import { errorHandler } from './middlewares/error-handler';
 import userController from './controllers/user-controller';
 import { createBucket } from './services/s3-service';
 import path from "path";
-import swagger from "swagger-ui-express";
-import docs from "./docs/swagger.json";
 import { activityController } from './controllers/activity-controller';
 import { logError } from './middlewares/log-error';
+import { setupSwagger } from './setup-swagger';
 
 const server = express();
 
@@ -17,7 +16,7 @@ const server = express();
 server.use(json());
 server.use(cors());
 dotenv.config();
-server.use("/api-docs/", swagger.serve, swagger.setup(docs));
+setupSwagger(server);
 
 // Controllers
 authController(server);
