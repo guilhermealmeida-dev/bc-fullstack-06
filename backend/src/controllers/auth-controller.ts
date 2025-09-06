@@ -1,36 +1,40 @@
-import { Express, Router, NextFunction } from 'express';
-import { createUser, login } from '../services/auth-service';
-import jwt from 'jsonwebtoken';
-import authValidation from '../validations/auth-validation';
-import requestBodyValidator from '../middleware/request-body-validator';
-import createValidation from '../validations/create-validation';
+import { Express, Router, Request, Response, NextFunction } from 'express';
+import { login, register } from '../services/auth-service';
+import { loginUserValidation } from '../validations/login-user-validation';
+import { requestBodyValidator } from '../middlewares/request-body-validator';
+import { registerUserValidation } from '../validations/register-user-validation';
+import { AuthRegister } from '../types/auth/auth-register';
+import { jwtTokenGenerate } from '../utils/jwt-token-generate';
 
-const jwtSecret = process.env.JWT_SECRET!;
-
-function authController(server: Express) {
+export function authController(server: Express) {
     const router = Router();
 
-    router.post('/register',requestBodyValidator(createValidation), async (request, response, next: NextFunction) => {
-        try {
-            const userData = request.body;     
-            await createUser(userData);
-            response.status(201).json({message:"Usuário criado com sucesso!"});
-        } catch (error: any) {
-            next(error);
-        }
-    });
+    router.post('/register',
+        requestBodyValidator(registerUserValidation),
+        async (request: Request, response: Response, next: NextFunction) => {
+            const userData: AuthRegister = request.body;
+            try {
+                await register(userData);
+                response.status(201).json({ message: "Usuário criado com sucesso." });
+                return;
+            } catch (error: any) {
+                return next(error);
+            }
+        });
 
-    router.post('/sign-in',requestBodyValidator(authValidation), async (request, response, next: NextFunction) => {
-        try {
-            const { email, password } = request.body;
-            const user = await login({ email, password });
-            const token = jwt.sign(user, jwtSecret, { expiresIn: '1d' });
-            response.status(200).json({ token: token, user});
-        } catch (error) {
-            next(error);
-        }
-    });
+    router.post('/sign-in',
+        requestBodyValidator(loginUserValidation),
+        async (request: Request, response: Response, next: NextFunction) => {
+            try {
+                const { email, password } = request.body;
+                const user = await login({ email, password });
+                const token = await jwtTokenGenerate({ id: user.id, email: user.email })
+                response.status(200).json({ token: token, ...user });
+                return;
+            } catch (error) {
+                return next(error);
+            }
+        });
 
     server.use('/auth', router);
 }
-export default authController;

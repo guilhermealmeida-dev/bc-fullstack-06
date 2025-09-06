@@ -1,15 +1,14 @@
-import { string } from 'zod';
 import prismaClient from '../prisma/prisma-client';
-import userCriation from '../types/user/user-creation';
+import { AuthRegister } from '../types/auth/auth-register';
 import userUpdate from '../types/user/user-data-update';
 
 export async function getById(userId: string) {
-    return await prismaClient.user.findUnique({
+    return prismaClient.user.findUnique({
         where: {
             id: userId,
         },
         include: {
-            UserArchievement: true,
+            archievements: true,
 
         },
         omit: {
@@ -26,25 +25,35 @@ export async function getIsActiveById(userId: string): Promise<boolean> {
     return user ? user.deletedAt === null : false;
 }
 
-export async function getByEmail(email: string) {
-    return await prismaClient.user.findUnique({
+export async function findByEmail(email: string) {
+    return prismaClient.user.findUnique({
         where: {
             email: email,
         },
         include: {
-            UserArchievement: true,
+            archievements: true,
         },
     });
 }
 
-export async function create(data: userCriation) {
-    return await prismaClient.user.create({
+export async function findByCpf(cpf: string) {
+    return prismaClient.user.findUnique(
+        {
+            where: {
+                cpf: cpf,
+            }
+        }
+    );
+}
+
+export async function create(data: AuthRegister) {
+    return prismaClient.user.create({
         data: data
     });
 }
 
 export async function uploadProfile(path: string, userId: string) {
-    return await prismaClient.user.update({
+    return prismaClient.user.update({
         data: {
             avatar: path
         },
@@ -55,7 +64,7 @@ export async function uploadProfile(path: string, userId: string) {
 }
 
 export async function update(data: userUpdate, userId: string) {
-    return await prismaClient.user.update({
+    return prismaClient.user.update({
         data: data,
         where: {
             id: userId,
@@ -65,7 +74,7 @@ export async function update(data: userUpdate, userId: string) {
 
 export async function desactiveAcaunt(userId: string) {
     const currentDate = new Date().toISOString();
-    return await prismaClient.user.update({
+    return prismaClient.user.update({
         data: {
             deletedAt: currentDate,
         },

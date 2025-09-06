@@ -3,7 +3,7 @@ import { checkActivityExists, countActivities, createActivity, findActivityById,
 import { getActivityTypes } from "../repository/activity-type-repository";
 import { getUserPreferencesTypeIds } from "../repository/preference-repository";
 import activityCreation from "../types/activity/activity-creation";
-import { ErrorRequest } from "../types/error/error-request";
+import { AppError } from "../types/error/app-error";
 import { giveAchievementService, giveXpService } from "./user-service";
 import { randomBytes } from 'crypto';
 
@@ -131,7 +131,7 @@ export async function getParticipantsActivyService(activityId: string) {
         const activityExists = await checkActivityExists(activityId);
 
         if (!activityExists) {
-            const erro: ErrorRequest = {
+            const erro: AppError = {
                 message: "Atividade não encontrada.",
                 status: 404,
             };
@@ -187,23 +187,23 @@ export async function createActivityService(userId: string, activity: activityCr
 export async function registerUserInActivityService(userId: string, activityId: string) {
     const activity = await findActivityById(activityId);
     if (!activity) {
-        const erro: ErrorRequest = { message: "Atividade não encontrada.", status: 404 };
+        const erro: AppError = { message: "Atividade não encontrada.", status: 404 };
         throw erro;
     }
 
     if (activity.creatorId === userId) {
-        const erro: ErrorRequest = { message: "O criador da atividade não pode se inscrever.", status: 400 };
+        const erro: AppError = { message: "O criador da atividade não pode se inscrever.", status: 400 };
         throw erro;
     }
 
     const existingParticipant = await findActivityParticipant(userId, activityId);
     if (existingParticipant) {
-        const erro: ErrorRequest = { message: "Você já se registrou nesta atividade.", status: 400 };
+        const erro: AppError = { message: "Você já se registrou nesta atividade.", status: 400 };
         throw erro;
     }
 
     if (activity.completedAt) {
-        const erro: ErrorRequest = { message: "Não é possível se inscrever em uma atividade concluída.", status: 400 };
+        const erro: AppError = { message: "Não é possível se inscrever em uma atividade concluída.", status: 400 };
         throw erro;
     }
      const userRegistrations = await findActivityParticipant(userId,activityId);

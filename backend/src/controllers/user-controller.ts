@@ -1,13 +1,13 @@
 import { Express, Router, NextFunction } from "express";
 import { defineUserPreferences, desactiveUserAcaunt, getUser, getUserPreferences, updateUser } from "../services/user-service";
-import authGuard from "../middleware/auth-guard";
-import requestBodyValidator from "../middleware/request-body-validator";
+import authGuard from "../middlewares/auth-guard";
+import { requestBodyValidator } from "../middlewares/request-body-validator";
 import updateUserValidation from "../validations/update-user-validation";
-import upload from "../multer/multer";
+import upload from "../utils/multer";
 import { uploadImage } from "../services/s3-service";
 import { uploadProfile } from "../repository/user-repository";
 import imageValidation from "../validations/image-validation";
-import { ErrorRequest } from "../types/error/error-request";
+import { AppError } from "../types/error/app-error";
 function userController(server: Express) {
     const router = Router();
     router.use(authGuard);
@@ -22,7 +22,7 @@ function userController(server: Express) {
         }
     });
 
-    router.get("/preferences", async (request, response,next:NextFunction) => {
+    router.get("/preferences", async (request, response, next: NextFunction) => {
         try {
             const userId = request.userId as string;
             const preferences = await getUserPreferences(userId);
@@ -36,9 +36,9 @@ function userController(server: Express) {
         const userId = request.userId as string;
         const preferences = request.body;
         try {
-            const isInValid=await defineUserPreferences(preferences, userId);
-            if(isInValid){
-                const erro: ErrorRequest = {
+            const isInValid = await defineUserPreferences(preferences, userId);
+            if (isInValid) {
+                const erro: AppError = {
                     message: "Um ou mais IDs são inválidos",
                     status: 400
                 }
@@ -57,7 +57,7 @@ function userController(server: Express) {
             const fileImage = request.file;
             const result = imageValidation.safeParse(fileImage);
             if (!result.success) {
-                const erro: ErrorRequest = {
+                const erro: AppError = {
                     message: result.error.errors[0].message,
                     status: 400
                 }
@@ -84,11 +84,11 @@ function userController(server: Express) {
         }
     });
 
-    router.delete("/deactivate/", async (request, response,next:NextFunction) => { 
+    router.delete("/deactivate/", async (request, response, next: NextFunction) => {
         try {
-            const userId=request.userId as string;
+            const userId = request.userId as string;
             await desactiveUserAcaunt(userId);
-            response.status(200).json({message:"Conta desativada com sucesso" })
+            response.status(200).json({ message: "Conta desativada com sucesso" })
         } catch (error) {
             next(error)
         }

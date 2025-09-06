@@ -1,13 +1,12 @@
 import { Express, Router, NextFunction } from 'express';
-import authGuard from '../middleware/auth-guard';
+import authGuard from '../middlewares/auth-guard';
 import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getActiviesUserCreatorService, getActiviesUserParticipantService, getActivitiesService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService } from '../services/activity-service';
-import userCriation from '../types/user/user-creation';
 import activityCreation from '../types/activity/activity-creation';
-import { ErrorRequest } from '../types/error/error-request';
+import { AppError } from '../types/error/app-error';
 import imageValidation from '../validations/image-validation';
 import { uploadImage } from '../services/s3-service';
-import upload from '../multer/multer';
-import { formatAddress } from '../middleware/format-address';
+import upload from '../utils/multer';
+import { formatAddress } from '../middlewares/format-address';
 
 export function activityController(server: Express) {
     const router = Router();
@@ -152,7 +151,7 @@ export function activityController(server: Express) {
             const fileImage = request.file;
             const result = imageValidation.safeParse(fileImage);
             if (!result.success) {
-                const erro: ErrorRequest = {
+                const erro: AppError = {
                     message: result.error.errors[0].message,
                     status: 400
                 }
@@ -163,7 +162,7 @@ export function activityController(server: Express) {
 
             let { title, description, typeId, address, scheduledDate, private: isPrivate } = request.body;
 
-            const formattedAddress = await formatAddress(address);
+            const formattedAddress = formatAddress(address);
 
             const formattedScheduledDate = new Date(scheduledDate);
             const privateStatus = isPrivate === 'true';

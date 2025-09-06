@@ -1,57 +1,40 @@
-import { create, getByEmail } from "../repository/user-repository";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import userCriation from "../types/user/user-creation";
-import authData from "../types/user/auth-data";
+import { create, findByEmail, findByCpf } from "../repository/user-repository";
+import { AuthRegister } from "../types/auth/auth-register";
+import { AuthLogin } from "../types/auth/auth-login";
 import bcrypt from "bcryptjs";
-import { ErrorRequest } from "../types/error/error-request";
+import { createError } from "../utils/create-error";
 
-export async function createUser(data: userCriation) {
-    try {
-        const encriptedPassworf = await bcrypt.hash(data.password, 10);
-        data.password = encriptedPassworf;
-        data.avatar=`${process.env.SERVER_URL}:${process.env.PORT}/public/images/profile.jpeg`;
-        return await create(data);
-    } catch (error: any) {
-        if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
-            const erro: ErrorRequest = {
-                message: "O e-mail ou CPF informado já pertence a outro usuário",
-                status: 409
-            };
-            throw erro;
-        }
-        throw error;
+export async function register(data: AuthRegister) {
+
+    const error = createError("O e-mail ou CPF informado já pertence a outro usuário.", 409);
+
+    const existingByEmail = await findByEmail(data.email);
+    if (existingByEmail) throw error;
+
+    const existingByCpf = await findByCpf(data.cpf);
+    if (existingByCpf) throw error;
+
+    const encriptedPassword = await bcrypt.hash(data.password, 10);
+
+    const userToCreate: AuthRegister = {
+        ...data,
+        password: encriptedPassword,
+        avatar: `${process.env.SERVER_URL}:${process.env.PORT}/public/images/profile.jpeg`
     }
+
+    return create(userToCreate);
 }
 
-export async function login(data: authData) {
-    try {
-        const user = await getByEmail(data.email);
-        if (!user) {
-            const erro: ErrorRequest = {
-                message: "Usuário não encontrado",
-                status: 404
-            };
-            throw erro;
-        }
-        if (user.deletedAt != null) {
-            const erro: ErrorRequest = {
-                message: "Esta conta foi desativada e não pode ser utilizada",
-                status: 403
-            };
-            throw erro;
-        }
+export async function login(data: AuthLogin) {
 
-        const isValidPassword = await bcrypt.compare(data.password, user.password);
+    const userDb = await findByEmail(data.email);
+    if (!userDb) throw createError("Usuário não encontrado.", 404);
+    if (userDb.deletedAt) throw createError("Esta conta foi desativada e não pode ser utilizada.", 403);
 
-        if (!isValidPassword) {
-            const erro: ErrorRequest = {
-                message: "Senha incorreta",
-                status: 401
-            };
-            throw erro;
-        }
-        return user;
-    } catch (error: any) {
-        throw error;
-    }
+    const isValidPassword = await bcrypt.compare(data.password, userDb.password);
+    if (!isValidPassword) throw createError("Senha incorreta", 401);
+
+    const { password,deletedAt, ...user } = userDb;
+
+    return user;
 }

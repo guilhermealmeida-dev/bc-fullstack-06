@@ -1,16 +1,16 @@
 services:
-  postgresql: 
+  postgresql-bootcamp-sysmap: 
     image: postgres
-    container_name: db-service
+    container_name: db-bootcamp-sysmap
     environment:
-     - POSTGRES_USER=bootcampdb
-     - POSTGRES_PASSWORD=bootcampdb
-     - POSTGRES_DB=bootcampdb 
+     - POSTGRES_USER=bootcamp
+     - POSTGRES_PASSWORD=bootcamp
+     - POSTGRES_DB=bootcamp
     ports:
      - "5432:5432"
-  localstack:
+  localstack-bootcamp-sysmap:
     image: localstack/localstack
-    container_name: localstack
+    container_name: localstack-bootcamp-sysmap
     ports:
       - "4566:4566"
     environment:
@@ -18,12 +18,12 @@ services:
       AWS_REGION: us-east-1
       AWS_ACCESS_KEY: test
       AWS_SECRET_ACCESS_KEY: test
-  api:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgresql
-      - localstack
+  # api:
+  #   build: 
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - postgresql
+  #     - localstack

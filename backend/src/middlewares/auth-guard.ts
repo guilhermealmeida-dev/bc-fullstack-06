@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { findUserIsActive } from '../services/user-service';
-import { ErrorRequest } from '../types/error/error-request';
+import { AppError } from '../types/error/app-error';
 const jwtSecret = process.env.JWT_SECRET!;
 
 declare module 'express-serve-static-core' {
@@ -18,7 +18,7 @@ export default async function authGuard(
   const authHeader = request.headers.authorization;
 
   if (!authHeader) {
-    const error: ErrorRequest = {
+    const error: AppError = {
       message: "Autenticação necessária",
       status: 401,
     };
@@ -31,7 +31,7 @@ export default async function authGuard(
     try {
       const isActive = await findUserIsActive(request.userId);
       if (!isActive) {
-        const error: ErrorRequest = {
+        const error: AppError = {
           message: "Esta conta foi desativada e não pode ser utilizada",
           status: 403,
         };
@@ -42,7 +42,7 @@ export default async function authGuard(
     }
     next();
   } catch (error: any) {
-    const errorResponse: ErrorRequest = {
+    const errorResponse: AppError = {
       message: 'Token inválido ou expirado',
       status: 401,
     };

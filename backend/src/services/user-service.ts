@@ -2,7 +2,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { desactiveAcaunt, getById, getIsActiveById, update, uploadProfile } from "../repository/user-repository";
 import userDataUpdate from "../types/user/user-data-update";
 import bcrypt from "bcryptjs";
-import { ErrorRequest } from "../types/error/error-request";
+import { AppError } from "../types/error/app-error";
 import { createPreferences, deletePreferencesByUserId, getPreferencesById } from "../repository/preference-repository";
 import { getValidActivityTypes } from "../repository/activity-type-repository";
 import { assignAchievementToUser, hasUserAchieved } from "../repository/user-archievement-repository";
@@ -12,7 +12,7 @@ export async function getUser(id: string) {
         const user = await getById(id);
 
         if (!user) {
-            const erro: ErrorRequest = {
+            const erro: AppError = {
                 message: "Usuário não encontrado",
                 status: 404,
             };
@@ -83,7 +83,7 @@ export async function updateUser(data: userDataUpdate, id: string) {
 
     } catch (error: any) {
         if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
-            const erro: ErrorRequest = {
+            const erro: AppError = {
                 message: "O e-mail informado já pertence a outro usuário",
                 status: 409,
             }
