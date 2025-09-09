@@ -8,13 +8,14 @@ import { uploadImage } from "../services/s3-service";
 import { uploadProfile } from "../repository/user-repository";
 import imageValidation from "../validations/image-validation";
 import { AppError } from "../types/error/app-error";
+
 function userController(server: Express) {
     const router = Router();
     router.use(authGuard);
 
     router.get("/", async (request, response, next: NextFunction) => {
         try {
-            const userId = request.userId as string;
+            const userId = request.payload?.id as string;
             const user = await getUser(userId);
             response.status(200).json(user);
         } catch (error) {
@@ -24,7 +25,7 @@ function userController(server: Express) {
 
     router.get("/preferences", async (request, response, next: NextFunction) => {
         try {
-            const userId = request.userId as string;
+            const userId = request.payload?.id as string;
             const preferences = await getUserPreferences(userId);
             response.status(200).send(preferences);
         } catch (error) {
@@ -33,7 +34,7 @@ function userController(server: Express) {
     });
 
     router.post("/preferences/define", async (request, response, next: NextFunction) => {
-        const userId = request.userId as string;
+        const userId = request.payload?.id as string;
         const preferences = request.body;
         try {
             const isInValid = await defineUserPreferences(preferences, userId);
@@ -53,7 +54,7 @@ function userController(server: Express) {
 
     router.put("/avatar", upload.single("avatar"), async (request, response, next: NextFunction) => {
         try {
-            const userId = request.userId as string;
+            const userId = request.payload?.id as string;
             const fileImage = request.file;
             const result = imageValidation.safeParse(fileImage);
             if (!result.success) {
@@ -75,7 +76,7 @@ function userController(server: Express) {
 
     router.put("/update/", requestBodyValidator(updateUserValidation), async (request, response, next: NextFunction) => {
         try {
-            const userId = request.userId as string;
+            const userId = request.payload?.id as string;
             const userDataUpdate = request.body;
             const user = await updateUser(userDataUpdate, userId);
             response.status(200).json(user);
@@ -86,7 +87,7 @@ function userController(server: Express) {
 
     router.delete("/deactivate/", async (request, response, next: NextFunction) => {
         try {
-            const userId = request.userId as string;
+            const userId = request.payload?.id as string;
             await desactiveUserAcaunt(userId);
             response.status(200).json({ message: "Conta desativada com sucesso" })
         } catch (error) {

@@ -1,5 +1,5 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { desactiveAcaunt, getById, getIsActiveById, update, uploadProfile } from "../repository/user-repository";
+import { desactiveAcaunt, findById, update, uploadProfile } from "../repository/user-repository";
 import userDataUpdate from "../types/user/user-data-update";
 import bcrypt from "bcryptjs";
 import { AppError } from "../types/error/app-error";
@@ -7,9 +7,10 @@ import { createPreferences, deletePreferencesByUserId, getPreferencesById } from
 import { getValidActivityTypes } from "../repository/activity-type-repository";
 import { assignAchievementToUser, hasUserAchieved } from "../repository/user-archievement-repository";
 import { findAchievementByName } from "../repository/archievement-repository";
+
 export async function getUser(id: string) {
     try {
-        const user = await getById(id);
+        const user = await findById(id);
 
         if (!user) {
             const erro: AppError = {
@@ -24,13 +25,6 @@ export async function getUser(id: string) {
     }
 }
 
-export async function findUserIsActive(id: string) {
-    try {
-        return await getIsActiveById(id);
-    } catch (error) {
-        throw error;
-    }
-}
 
 export async function getUserPreferences(userId: string) {
     try {
@@ -72,7 +66,7 @@ export async function uploadUserProfile(path: string, userId: string) {
 
 export async function updateUser(data: userDataUpdate, id: string) {
     try {
-        const user = await getUser(id);
+        const user = await findById(id);
         const { cpf, level, xp, ...allowedData } = data;
         if (allowedData.password) {
             allowedData.password = await bcrypt.hash(allowedData.password, 10);
@@ -102,11 +96,11 @@ export async function desactiveUserAcaunt(userId:string) {
 }
 
 export async function giveXpService(userId: string, xpToAdd: number) {
-    const user =await getUser(userId);
+    const user =await findById(userId);
 
-    const newXp = user.xp + xpToAdd;
+    const newXp = user!.xp + xpToAdd;
 
-    let newLevel = user.level;
+    let newLevel = user!.level;
     if (newXp >= 1000) { 
         newLevel += 1;
     }

@@ -15,6 +15,9 @@
     },
     "/auth/sign-in": {
       "$ref": "./paths/auth/sign-in.json"
+    },
+     "/user": {
+      "$ref": "./paths/user/user.json"
     }
   },
   "components": {

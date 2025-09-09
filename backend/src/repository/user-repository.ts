@@ -2,10 +2,10 @@ import prismaClient from '../prisma/prisma-client';
 import { AuthRegister } from '../types/auth/auth-register';
 import userUpdate from '../types/user/user-data-update';
 
-export async function getById(userId: string) {
+export async function findById(id: string) {
     return prismaClient.user.findUnique({
         where: {
-            id: userId,
+            id: id,
         },
         include: {
             archievements: true,
@@ -13,16 +13,17 @@ export async function getById(userId: string) {
         },
         omit: {
             deletedAt: true,
+            password: true,
         }
     });
 }
 
-export async function getIsActiveById(userId: string): Promise<boolean> {
+export async function isUserDeleted(id: string): Promise<boolean> {
     const user = await prismaClient.user.findUnique({
-        where: { id: userId },
+        where: { id: id },
         select: { deletedAt: true },
     });
-    return user ? user.deletedAt === null : false;
+    return user?.deletedAt !== null;
 }
 
 export async function findByEmail(email: string) {

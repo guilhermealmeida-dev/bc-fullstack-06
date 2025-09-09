@@ -26,7 +26,7 @@ export function activityController(server: Express) {
 
             const { pageSize = "10", page = "0", typeId, orderBy = "title", order = "asc" } = request.query as { pageSize: string, page: string, typeId: string, orderBy: string, order: string };
             const orderDirection: "asc" | "desc" = order === "asc" ? "asc" : "desc";
-            const userId = request.userId as string;
+            const userId = request.payload?.id as string;
             const totalActivities = await countActivitiesTypeService(typeId);
             const totalPages = Math.ceil(totalActivities / parseInt(pageSize));
             const previous = parseInt(page) > 0 ? parseInt(page) - 1 : null;
@@ -52,7 +52,7 @@ export function activityController(server: Express) {
 
             const { typeId, orderBy = "title", order = "asc" } = request.query as { typeId: string, orderBy: string, order: string };
             const orderDirection: "asc" | "desc" = order === "asc" ? "asc" : "desc";
-            const userId = request.userId as string;
+            const userId = request.payload?.id as string;
 
             const activities = await getActivitiesService(userId, undefined, 0, [typeId], { orderBy, order: orderDirection });
             response.status(200).json(
@@ -66,7 +66,7 @@ export function activityController(server: Express) {
     router.get("/user/creator", async function (request, response, next: NextFunction) {
         try {
             const { pageSize = "10", page = "0" } = request.query as { pageSize: string, page: string };
-            const userId = request.userId as string;
+            const userId = request.payload?.id as string;
             const totalActivities = await countActivitiesCreatorService(userId);
             const totalPages = Math.ceil(totalActivities / parseInt(pageSize));
             const previous = parseInt(page) > 0 ? parseInt(page) - 1 : null;
@@ -89,7 +89,7 @@ export function activityController(server: Express) {
 
     router.get("/user/creator/all", async function (request, response, next: NextFunction) {
         try {
-            const userId = request.userId as string;
+            const userId = request.payload?.id as string;
 
             const activities = await getActiviesUserCreatorService(userId, undefined, undefined);
             response.status(200).json(
@@ -103,7 +103,7 @@ export function activityController(server: Express) {
     router.get("/user/participant", async function (request, response, next: NextFunction) {
         try {
             const { pageSize = "10", page = "0" } = request.query as { pageSize: string, page: string };
-            const userId = request.userId as string;
+            const userId = request.payload?.id as string;
             const totalActivities = await countActivitiesParticipantService(userId);
             const totalPages = Math.ceil(totalActivities / parseInt(pageSize));
             const previous = parseInt(page) > 0 ? parseInt(page) - 1 : null;
@@ -127,7 +127,7 @@ export function activityController(server: Express) {
 
     router.get("/user/participant/all", async function (request, response, next: NextFunction) {
         try {
-            const userId = request.userId as string;
+            const userId = request.payload?.id as string;
             const activities = await getActiviesUserParticipantService(userId, undefined, undefined);
             response.status(200).json(activities);
         } catch (error) {
@@ -147,7 +147,7 @@ export function activityController(server: Express) {
 
     router.post("/new", upload.single("image"), async function (request, response, next: NextFunction) {
         try {
-            const userId = request.userId as string;
+            const userId = request.payload?.id as string;
             const fileImage = request.file;
             const result = imageValidation.safeParse(fileImage);
             if (!result.success) {
@@ -192,7 +192,7 @@ export function activityController(server: Express) {
     router.post("/:id/subscribe", async function (request, response, next: NextFunction) {
         try {
             const id = request.params.id;
-            const userId = request.userId as string;
+            const userId = request.payload?.id as string;
             const subscribe = await registerUserInActivityService(userId, id);
             response.status(200).json(subscribe);
         } catch (error) {

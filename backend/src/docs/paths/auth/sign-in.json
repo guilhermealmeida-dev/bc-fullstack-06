@@ -1,7 +1,7 @@
 {
   "post": {
     "summary": "Login de usuário",
-    "description": "Busca dados do usuário e retorna o token de autenticação",
+    "description": "Endpoint para realizar login com e-mail e senha.",
     "tags": ["Auth"],
     "requestBody": {
       "required": true,

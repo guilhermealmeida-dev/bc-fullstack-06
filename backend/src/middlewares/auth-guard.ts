@@ -1,12 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import { findUserIsActive } from '../services/user-service';
-import { AppError } from '../types/error/app-error';
-const jwtSecret = process.env.JWT_SECRET!;
-
+import jwt, { JsonWebTokenError } from 'jsonwebtoken';
+import { createError } from '../utils/create-error';
+import { AuthJwtPayload } from '../types/payload/userPayload';
+import { isUserDeleted } from '../repository/user-repository';
 declare module 'express-serve-static-core' {
   interface Request {
-    userId?: string;
+    payload?: AuthJwtPayload;
   }
 }
 
@@ -16,36 +15,33 @@ export default async function authGuard(
   next: NextFunction,
 ) {
   const authHeader = request.headers.authorization;
+  const jwtSecret = process.env.JWT_SECRET!;
 
-  if (!authHeader) {
-    const error: AppError = {
-      message: "Autenticação necessária",
-      status: 401,
-    };
-    return next(error);
+  const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
+
+  if (!token) {
+    return next(createError("Autenticação necessária", 401));
   }
 
   try {
-    const decoded = jwt.verify(authHeader, jwtSecret) as JwtPayload;
-    request.userId = decoded.id as string;
-    try {
-      const isActive = await findUserIsActive(request.userId);
-      if (!isActive) {
-        const error: AppError = {
-          message: "Esta conta foi desativada e não pode ser utilizada",
-          status: 403,
-        };
-        return next(error);
-      }
-    } catch (dbError: any) {
-      return next({status:500});
+    const decoded = jwt.verify(token, jwtSecret) as AuthJwtPayload;
+
+    request.payload = {
+      id: decoded.id,
+      email: decoded.email,
     }
-    next();
+
+    const user = await isUserDeleted(decoded.id);
+
+    if (user) {
+      return next(createError("Esta conta foi desativada e não pode ser utilizada", 403));
+    }
+
+    return next();
   } catch (error: any) {
-    const errorResponse: AppError = {
-      message: 'Token inválido ou expirado',
-      status: 401,
-    };
-    return next(errorResponse);
+    if (error instanceof JsonWebTokenError) {
+      return next(createError("Autenticação necessária", 401));
+    }
+    next(error);
   }
 }
