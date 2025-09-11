@@ -10,10 +10,6 @@ export async function findById(id: string) {
         include: {
             archievements: true,
 
-        },
-        omit: {
-            deletedAt: true,
-            password: true,
         }
     });
 }

@@ -34,21 +34,15 @@ function userController(server: Express) {
     });
 
     router.post("/preferences/define", async (request, response, next: NextFunction) => {
+        
         const userId = request.payload?.id as string;
-        const preferences = request.body;
+        const preferences = request.body as string[];
+
         try {
-            const isInValid = await defineUserPreferences(preferences, userId);
-            if (isInValid) {
-                const erro: AppError = {
-                    message: "Um ou mais IDs são inválidos",
-                    status: 400
-                }
-                next(erro);
-                return;
-            }
-            response.status(200).json({ message: "Preferências atualizadas com sucesso" });
+            await defineUserPreferences(preferences, userId);
+            response.status(200).json({ message: "Preferências atualizadas com sucesso." });
         } catch (error) {
-            next(error)
+            return next(error)
         }
     });
 

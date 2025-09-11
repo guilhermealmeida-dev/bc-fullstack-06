@@ -1,6 +1,6 @@
 import prismaClient from "../prisma/prisma-client";
 
-export async function getValidActivityTypes() {
+export async function findValidActivityTypes() {
     const validTypes = await prismaClient.activityType.findMany({
         select: { id: true },
     });

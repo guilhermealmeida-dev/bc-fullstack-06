@@ -21,7 +21,7 @@ export async function getUserPreferencesTypeIds(userId: string) {
     return preferences.map(preference => preference.typeId);
 }
 
-export async function deletePreferencesByUserId(userId: string) {
+export async function deletePreferencesById(userId: string) {
     return prismaClient.preference.deleteMany({
         where: { userId },
     });

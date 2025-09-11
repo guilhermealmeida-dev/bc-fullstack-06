@@ -25,6 +25,7 @@
     },
     "required": ["name", "email", "cpf", "password"]
   },
+
   "UserResponseSchema": {
     "type": "object",
     "title": "LoginResponseSchema",
@@ -88,6 +89,7 @@
       }
     }
   },
+
   "LoginResponseSchema": {
     "type": "object",
     "title": "LoginResponseSchema",
@@ -172,5 +174,38 @@
       }
     },
     "required": ["email", "password"]
+  },
+
+  "PreferenceDefineSchema": {
+    "type": "array",
+    "title": "PreferenceDefineSchema",
+    "items": {
+      "type": "string",
+      "format": "uuid",
+      "description": "ID da preferência"
+    },
+    "description": "Lista de IDs das preferências",
+    "example": ["550e8400-e29b-41d4-a716-446655440000"]
+  },
+
+  "PreferenceResponseSchema": {
+    "type": "object",
+    "title": "PreferenceResponseSchema",
+    "properties": {
+      "typeId": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Identificador único da preferência"
+      },
+      "typeName": {
+        "type": "string",
+        "description": "Nome da preferência"
+      },
+      "typeDescription": {
+        "type": "string",
+        "description": "Descrição detalhada da preferência"
+      }
+    },
+    "required": ["typeId", "typeName"]
   }
 }

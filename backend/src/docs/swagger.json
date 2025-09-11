@@ -16,8 +16,14 @@
     "/auth/sign-in": {
       "$ref": "./paths/auth/sign-in.json"
     },
-     "/user": {
+    "/user": {
       "$ref": "./paths/user/user.json"
+    },
+    "/user/preferences": {
+      "$ref": "./paths/user/preferences.json"
+    },
+    "/user/preferences/define": {
+      "$ref": "./paths/user/preferences-define.json"
     }
   },
   "components": {

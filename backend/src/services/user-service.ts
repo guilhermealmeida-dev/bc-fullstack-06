@@ -3,56 +3,47 @@ import { desactiveAcaunt, findById, update, uploadProfile } from "../repository/
 import userDataUpdate from "../types/user/user-data-update";
 import bcrypt from "bcryptjs";
 import { AppError } from "../types/error/app-error";
-import { createPreferences, deletePreferencesByUserId, getPreferencesById } from "../repository/preference-repository";
-import { getValidActivityTypes } from "../repository/activity-type-repository";
+import { createPreferences, deletePreferencesById, getPreferencesById } from "../repository/preference-repository";
+import { findValidActivityTypes } from "../repository/activity-type-repository";
 import { assignAchievementToUser, hasUserAchieved } from "../repository/user-archievement-repository";
 import { findAchievementByName } from "../repository/archievement-repository";
+import { createError } from "../utils/create-error";
 
 export async function getUser(id: string) {
-    try {
-        const user = await findById(id);
 
-        if (!user) {
-            const erro: AppError = {
-                message: "Usuário não encontrado",
-                status: 404,
-            };
-            throw erro;
-        }
-        return user;
-    } catch (error) {
-        throw error;
-    }
+    const userDb = await findById(id);
+
+    const { password, ...safeUser } = userDb!;
+
+    return safeUser;
 }
 
 
 export async function getUserPreferences(userId: string) {
-    try {
-        return await getPreferencesById(userId);
-    } catch (error) {
-        throw error;
-    }
+    const preferences = (await getPreferencesById(userId)).map((preference)=>({
+        typeId:preference.id,
+        typeName:preference.name,
+        typeDescription:preference.description,
+    }));
+    return preferences;
 }
+
 export async function defineUserPreferences(preferences: string[], userId: string) {
-    try {
-        const validTypeIds = await getValidActivityTypes();
-        const invalidType = preferences.find(typeId => !validTypeIds.includes(typeId));
 
-        if (invalidType) {
-            return true;
-        }
+    const validTypeIds = await findValidActivityTypes();
+    const invalidType = preferences.find(typeId => !validTypeIds.includes(typeId));
 
-        const preferencesData = preferences.map((typeId) => ({
-            userId,
-            typeId,
-        }));
-
-        await deletePreferencesByUserId(userId);
-        await createPreferences(preferencesData);
-        return false;
-    } catch (error) {
-        throw error;
+    if (invalidType) {
+        throw createError("Um ou mais IDs são inválidos.", 400);
     }
+
+    const preferencesData = preferences.map((typeId) => ({
+        userId,
+        typeId,
+    }));
+
+    await deletePreferencesById(userId);
+    await createPreferences(preferencesData);
 }
 
 export async function uploadUserProfile(path: string, userId: string) {
@@ -87,7 +78,7 @@ export async function updateUser(data: userDataUpdate, id: string) {
     }
 }
 
-export async function desactiveUserAcaunt(userId:string) {
+export async function desactiveUserAcaunt(userId: string) {
     try {
         return await desactiveAcaunt(userId);
     } catch (error) {
@@ -96,30 +87,30 @@ export async function desactiveUserAcaunt(userId:string) {
 }
 
 export async function giveXpService(userId: string, xpToAdd: number) {
-    const user =await findById(userId);
+    const user = await findById(userId);
 
     const newXp = user!.xp + xpToAdd;
 
     let newLevel = user!.level;
-    if (newXp >= 1000) { 
+    if (newXp >= 1000) {
         newLevel += 1;
     }
-    const updatedUser = await update({xp:newXp,level:newLevel},userId);
+    const updatedUser = await update({ xp: newXp, level: newLevel }, userId);
 
     return updatedUser;
 }
 
-export async function giveAchievementService(userId: string, achievementName: string,xp:number) {
-    const existingAchievement = await hasUserAchieved(userId,achievementName);
+export async function giveAchievementService(userId: string, achievementName: string, xp: number) {
+    const existingAchievement = await hasUserAchieved(userId, achievementName);
 
     if (existingAchievement) {
-        throw {status:500};
+        throw { status: 500 };
     }
 
     const achievement = await findAchievementByName(achievementName);
 
     if (!achievement) {
-        throw {status:500};
+        throw { status: 500 };
     }
 
     await assignAchievementToUser(userId, achievement.id);
