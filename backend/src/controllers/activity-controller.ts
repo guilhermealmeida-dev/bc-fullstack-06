@@ -175,7 +175,7 @@ export function activityController(server: Express) {
                 sheduledDate: formattedScheduledDate,
                 private: privateStatus,
                 confirmationCode: "",
-                image: fileUrl,
+                image: fileUrl.url,
                 createdAt: new Date(),
                 creatorId: userId
             };

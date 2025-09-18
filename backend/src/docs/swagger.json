@@ -24,6 +24,9 @@
     },
     "/user/preferences/define": {
       "$ref": "./paths/user/preferences-define.json"
+    },
+    "/user/avatar": {
+      "$ref": "./paths/user/avatar.json"
     }
   },
   "components": {

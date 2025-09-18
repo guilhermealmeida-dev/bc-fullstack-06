@@ -1,5 +1,5 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { desactiveAcaunt, findById, update, uploadProfile } from "../repository/user-repository";
+import { desactiveAcaunt, findByEmail, findById, update } from "../repository/user-repository";
 import userDataUpdate from "../types/user/user-data-update";
 import bcrypt from "bcryptjs";
 import { AppError } from "../types/error/app-error";
@@ -20,10 +20,10 @@ export async function getUser(id: string) {
 
 
 export async function getUserPreferences(userId: string) {
-    const preferences = (await getPreferencesById(userId)).map((preference)=>({
-        typeId:preference.id,
-        typeName:preference.name,
-        typeDescription:preference.description,
+    const preferences = (await getPreferencesById(userId)).map((preference) => ({
+        typeId: preference.id,
+        typeName: preference.name,
+        typeDescription: preference.description,
     }));
     return preferences;
 }
@@ -46,36 +46,23 @@ export async function defineUserPreferences(preferences: string[], userId: strin
     await createPreferences(preferencesData);
 }
 
-export async function uploadUserProfile(path: string, userId: string) {
-    try {
-        await uploadProfile(path, userId);
-    } catch (error: any) {
-
-        throw error;
-    }
-}
-
 export async function updateUser(data: userDataUpdate, id: string) {
-    try {
-        const user = await findById(id);
-        const { cpf, level, xp, ...allowedData } = data;
-        if (allowedData.password) {
-            allowedData.password = await bcrypt.hash(allowedData.password, 10);
-        }
-        const updatedUser = await update(allowedData, id);
-        const { deletedAt, ...userWithoutDeletedAt } = updatedUser;
-        return userWithoutDeletedAt;
 
-    } catch (error: any) {
-        if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
-            const erro: AppError = {
-                message: "O e-mail informado já pertence a outro usuário",
-                status: 409,
-            }
-            throw erro;
-        }
-        throw error;
+    if (data.password) {
+        data.password = await bcrypt.hash(data.password, 10);
     }
+    
+    if (data.email) {
+        const user = await findByEmail(data.email);
+        if (user) {
+            throw createError("Email já esta cadastrado", 400);
+        }
+    }
+
+    const updatedUser = await update(data, id);
+
+    return updatedUser;
+
 }
 
 export async function desactiveUserAcaunt(userId: string) {

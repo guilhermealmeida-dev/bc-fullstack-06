@@ -49,17 +49,6 @@ export async function create(data: AuthRegister) {
     });
 }
 
-export async function uploadProfile(path: string, userId: string) {
-    return prismaClient.user.update({
-        data: {
-            avatar: path
-        },
-        where: {
-            id: userId,
-        },
-    });
-}
-
 export async function update(data: userUpdate, userId: string) {
     return prismaClient.user.update({
         data: data,

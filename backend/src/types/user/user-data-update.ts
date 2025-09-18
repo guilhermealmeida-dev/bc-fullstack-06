@@ -1,8 +1,8 @@
 type userDataUpdate = {
     name?: string;
     email?: string;
+    avatar?: string;
     password?: string;
-    cpf?: never; 
     level?: number;
     xp?: number;
 };
