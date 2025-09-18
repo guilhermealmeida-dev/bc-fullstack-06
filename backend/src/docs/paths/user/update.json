@@ -1,0 +1,56 @@
+{
+  "put": {
+    "summary": "Editar dados do usuário",
+    "description": "Endpoint para editar dados do usuário logado.",
+    "tags": ["User"],
+    "requestBody": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "../../components/schemas.json#/UserUpdateSchema"
+          }
+        }
+      }
+    },
+    "responses": {
+      "201": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../components/schemas.json#/UserUpdateResponseSchema"
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "../../components/responses.json#/BadRequeste"
+      },
+      "401": {
+        "$ref": "../../components/responses.json#/Unauthorized"
+      },
+      "403": {
+        "$ref": "../../components/responses.json#/Forbidden"
+      },
+      "409": {
+        "description": "Conflict",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "O e-mail informado já pertence a outro usuário."
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../components/responses.json#/InternalServerError"
+      }
+    }
+  }
+}

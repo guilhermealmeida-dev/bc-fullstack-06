@@ -19,37 +19,11 @@
           }
         }
       },
-      "401": {
-        "description": "Unauthorized",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "example": "Autenticação necessária."
-                }
-              }
-            }
-          }
-        }
+     "401": {
+        "$ref": "../../components/responses.json#/Unauthorized"
       },
       "403": {
-        "description": "Forbidden",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "example": "Esta conta foi desativada e não pode ser utilizada."
-                }
-              }
-            }
-          }
-        }
+        "$ref": "../../components/responses.json#/Forbidden"
       },
       "500": {
         "$ref": "../../components/responses.json#/InternalServerError"

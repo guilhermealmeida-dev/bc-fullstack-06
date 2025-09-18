@@ -27,7 +27,11 @@
     },
     "/user/avatar": {
       "$ref": "./paths/user/avatar.json"
+    },
+    "/user/update": {
+      "$ref": "./paths/user/update.json"
     }
+
   },
   "components": {
     "responses": {
