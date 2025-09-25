@@ -65,11 +65,7 @@ export async function updateUser(data: userDataUpdate, id: string) {
 }
 
 export async function desactiveUserAcaunt(userId: string) {
-    try {
-        return await desactiveAcaunt(userId);
-    } catch (error) {
-        throw error;
-    }
+    return await desactiveAcaunt(userId);
 }
 
 export async function giveXpService(userId: string, xpToAdd: number) {

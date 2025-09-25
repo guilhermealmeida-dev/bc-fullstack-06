@@ -30,8 +30,10 @@
     },
     "/user/update": {
       "$ref": "./paths/user/update.json"
+    },
+    "/user/deactivate": {
+      "$ref": "./paths/user/deactivate.json"
     }
-
   },
   "components": {
     "responses": {

@@ -96,15 +96,17 @@ function userController(server: Express) {
             }
         });
 
-    router.delete("/deactivate/", async (request, response, next: NextFunction) => {
-        try {
-            const userId = request.payload?.id as string;
-            await desactiveUserAcaunt(userId);
-            response.status(200).json({ message: "Conta desativada com sucesso" })
-        } catch (error) {
-            return next(error)
-        }
-    });
+    router.delete(
+        "/deactivate/",
+        async (request, response, next: NextFunction) => {
+            try {
+                const userId = request.payload?.id as string;
+                await desactiveUserAcaunt(userId);
+                response.status(200).json({ message: "Conta desativada com sucesso" })
+            } catch (error) {
+                return next(error)
+            }
+        });
 
     server.use("/user", router);
 }
