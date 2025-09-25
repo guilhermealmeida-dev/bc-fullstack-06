@@ -6,7 +6,6 @@ import updateUserValidation from "../validations/update-user-validation";
 import upload from "../utils/multer";
 import { uploadImage } from "../services/s3-service";
 import imageValidation from "../validations/image-validation";
-import { AppError } from "../types/error/app-error";
 import { createError } from "../utils/create-error";
 
 function userController(server: Express) {
@@ -20,8 +19,9 @@ function userController(server: Express) {
                 const userId = request.payload?.id as string;
                 const user = await getUser(userId);
                 response.status(200).json(user);
+                return;
             } catch (error) {
-                next(error);
+                return next(error);
             }
         }
     );
@@ -33,8 +33,9 @@ function userController(server: Express) {
                 const userId = request.payload?.id as string;
                 const preferences = await getUserPreferences(userId);
                 response.status(200).send(preferences);
+                return;
             } catch (error) {
-                next(error);
+                return next(error);
             }
         }
     );
@@ -49,6 +50,7 @@ function userController(server: Express) {
             try {
                 await defineUserPreferences(preferences, userId);
                 response.status(200).json({ message: "Preferências atualizadas com sucesso." });
+                return;
             } catch (error) {
                 return next(error)
             }
@@ -80,16 +82,19 @@ function userController(server: Express) {
         }
     );
 
-    router.put("/update", requestBodyValidator(updateUserValidation), async (request, response, next: NextFunction) => {
-        try {
-            const userId = request.payload?.id as string;
-            const userDataUpdate = request.body;
-            const user = await updateUser(userDataUpdate, userId);
-            response.status(200).json(user);
-        } catch (error) {
-            next(error);
-        }
-    });
+    router.put(
+        "/update",
+        requestBodyValidator(updateUserValidation),
+        async (request, response, next: NextFunction) => {
+            try {
+                const userId = request.payload?.id as string;
+                const userDataUpdate = request.body;
+                const user = await updateUser(userDataUpdate, userId);
+                response.status(200).json(user);
+            } catch (error) {
+                return next(error);
+            }
+        });
 
     router.delete("/deactivate/", async (request, response, next: NextFunction) => {
         try {
@@ -97,7 +102,7 @@ function userController(server: Express) {
             await desactiveUserAcaunt(userId);
             response.status(200).json({ message: "Conta desativada com sucesso" })
         } catch (error) {
-            next(error)
+            return next(error)
         }
     });
 

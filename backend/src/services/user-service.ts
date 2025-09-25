@@ -13,7 +13,7 @@ export async function getUser(id: string) {
 
     const userDb = await findById(id);
 
-    const { password, ...safeUser } = userDb!;
+    const { password, deletedAt, ...safeUser } = userDb!;
 
     return safeUser;
 }
@@ -51,7 +51,7 @@ export async function updateUser(data: userDataUpdate, id: string) {
     if (data.password) {
         data.password = await bcrypt.hash(data.password, 10);
     }
-    
+
     if (data.email) {
         const user = await findByEmail(data.email);
         if (user) {
@@ -59,10 +59,9 @@ export async function updateUser(data: userDataUpdate, id: string) {
         }
     }
 
-    const updatedUser = await update(data, id);
+    const { deletedAt, ...updatedUser } = await update(data, id);
 
     return updatedUser;
-
 }
 
 export async function desactiveUserAcaunt(userId: string) {

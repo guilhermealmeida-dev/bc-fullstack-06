@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt, { JsonWebTokenError } from 'jsonwebtoken';
 import { createError } from '../utils/create-error';
 import { AuthJwtPayload } from '../types/payload/userPayload';
-import { findById, isUserDeleted } from '../repository/user-repository';
+import { findById } from '../repository/user-repository';
 declare module 'express-serve-static-core' {
   interface Request {
     payload?: AuthJwtPayload;

@@ -3,6 +3,11 @@
     "summary": "Editar dados do usuário",
     "description": "Endpoint para editar dados do usuário logado.",
     "tags": ["User"],
+        "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
     "requestBody": {
       "content": {
         "application/json": {
@@ -13,7 +18,7 @@
       }
     },
     "responses": {
-      "201": {
+      "200": {
         "description": "OK",
         "content": {
           "application/json": {
