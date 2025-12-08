@@ -33,6 +33,12 @@
     },
     "/user/deactivate": {
       "$ref": "./paths/user/deactivate.json"
+    },
+    "/activities/types": {
+      "$ref": "./paths/activities/types.json"
+    },
+    "/activities/": {
+      "$ref": "./paths/activities/activities.json"
     }
   },
   "components": {

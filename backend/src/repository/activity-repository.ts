@@ -1,63 +1,116 @@
 import { Prisma } from "@prisma/client";
-import prismaClient from "../prisma/prisma-client";
+import { prisma as prismaClient } from "../prisma/prisma-client";
 import activityCreation from "../types/activity/activity-creation";
 
-export async function getActivitiesPaginatedFilterOrderBy(
+export async function getActivitiesPaginatedFilterTypeOrderByRepository(
+    userId:string,
     pageSize: number | undefined,
     page: number | undefined,
-    typeIds: string[],
-    isDefined: boolean,
-    orderByData: { orderBy: string | undefined; order: "asc" | "desc" | undefined } | undefined
+    Ids: string[],
+    search: "none" | "typeId" | "preference",
+    orderByData: { orderBy?: string; order?: "asc" | "desc" } | undefined
 ) {
-    // const offset = pageSize !== undefined && page !== undefined || page > 0? (page - 1) * pageSize : 0;
+    const where: Prisma.ActivityWhereInput = {
+        completedAt: null,
+        deletedAt: null,
+        creatorId: { not: userId},
+        ...(search === "typeId" && Ids.length > 0 && { typeId: { in: Ids } })
+    };
+
+    const orderBy: Prisma.Enumerable<Prisma.ActivityOrderByWithRelationInput> = [];
+
+    if (orderByData?.orderBy && orderByData?.order) {
+        orderBy.push({ [orderByData.orderBy]: orderByData.order });
+    }
+
+    const skip =
+        page && pageSize
+            ? (page - 1) * pageSize
+            : undefined;
 
     const activities = await prismaClient.activity.findMany({
         take: pageSize,
-        skip: page,
-        where: {
-            typeId: isDefined ? { in: typeIds } : undefined,
-            completedAt: null,
-            deletedAt: null,
-        },
-        orderBy: orderByData?.orderBy ? { [orderByData.orderBy]: orderByData.order } : undefined,
-
+        skip,
+        where,
+        orderBy,
         include: {
             activityAddresse: {
-                select: {
-                    latitude: true,
-                    longitude: true,
-                }
+                select: { latitude: true, longitude: true }
             },
             user: {
-                select: {
-                    id: true,
-                    name: true,
-                    avatar: true,
-                }
+                select: { id: true, name: true, avatar: true }
             },
             ActivityParticipant: {
-                where: {
-                    aproved: true,
-                },
-                select: {
-                    userId: true
-                }
+                where: { aproved: true },
+                select: { userId: true }
             }
         }
     });
 
+    if (search === "preference") {
+        activities.sort((a, b) => {
+            const ai = Ids.indexOf(a.typeId);
+            const bi = Ids.indexOf(b.typeId);
+            return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
+        });
+    }
+
     return activities;
-
 }
 
-export async function countActivities(query: Prisma.ActivityWhereInput) {
+export async function getActivitiesAllFilterTypeOrderByRepository(
+    userId:string,
+    Ids: string[],
+    search: "none" | "typeId" | "preference",
+    orderByData: { orderBy?: string; order?: "asc" | "desc" } | undefined
+) {
+    const where: Prisma.ActivityWhereInput = {
+        completedAt: null,
+        deletedAt: null,
+        creatorId: { not: userId},
+        ...(search === "typeId" && Ids.length > 0 && { typeId: { in: Ids } })
+    };
+
+    const orderBy: Prisma.Enumerable<Prisma.ActivityOrderByWithRelationInput> = [];
+
+    if (orderByData?.orderBy && orderByData?.order) {
+        orderBy.push({ [orderByData.orderBy]: orderByData.order });
+    }
+
     const activities = await prismaClient.activity.findMany({
-        where: query,
+        where,
+        orderBy,
+        include: {
+            activityAddresse: {
+                select: { latitude: true, longitude: true }
+            },
+            user: {
+                select: { id: true, name: true, avatar: true }
+            },
+            ActivityParticipant: {
+                where: { aproved: true },
+                select: { userId: true }
+            }
+        }
     });
-    return activities.length;
+
+    if (search === "preference") {
+        activities.sort((a, b) => {
+            const ai = Ids.indexOf(a.typeId);
+            const bi = Ids.indexOf(b.typeId);
+            return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
+        });
+    }
+
+    return activities;
 }
 
-export async function getActiviesUserCreator(userId: string, pageSize: number | undefined, page: number | undefined) {
+
+export async function countActivitiesRepository(where: Prisma.ActivityWhereInput) {
+    return await prismaClient.activity.count({ where });
+}
+
+export async function getActiviesUserCreatorRepository(userId: string, pageSize: number | undefined, page: number | undefined) {
     const activities = await prismaClient.activity.findMany({
         skip: page,
         take: pageSize,
@@ -102,7 +155,7 @@ export async function getActiviesUserCreator(userId: string, pageSize: number | 
     });
 }
 
-export async function getActiviesUserParticipant(userId: string, pageSize: number | undefined, page: number | undefined) {
+export async function getActiviesUserParticipantRepository(userId: string, pageSize: number | undefined, page: number | undefined) {
     return prismaClient.activity.findMany({
         skip: page,
         take: pageSize,
@@ -139,7 +192,7 @@ export async function getActiviesUserParticipant(userId: string, pageSize: numbe
     });
 }
 
-export async function getParticipantsActivy(activityId: string) {
+export async function getParticipantsActivitityRepository(activityId: string) {
     const participants = await prismaClient.activityParticipant.findMany({
         where: {
             activityId: activityId,
@@ -165,7 +218,7 @@ export async function getParticipantsActivy(activityId: string) {
     }));
 }
 
-export async function checkActivityExists(activityId: string): Promise<boolean> {
+export async function checkActivityExistsRepository(activityId: string): Promise<boolean> {
     const activity = await prismaClient.activity.findUnique({
         where: {
             id: activityId,
@@ -174,7 +227,7 @@ export async function checkActivityExists(activityId: string): Promise<boolean> 
     return activity !== null;
 }
 
-export async function createActivity(activity: activityCreation) {
+export async function createActivityRepository(activity: activityCreation) {
     const { address, ...activityData } = activity;
 
     const createdActivity = await prismaClient.activity.create({
@@ -197,7 +250,7 @@ export async function createActivity(activity: activityCreation) {
     return createdActivity;
 }
 
-export async function findActivityById(activityId: string) {
+export async function findActivityByIdRepository(activityId: string) {
     return await prismaClient.activity.findUnique({
         where: { id: activityId }
     });

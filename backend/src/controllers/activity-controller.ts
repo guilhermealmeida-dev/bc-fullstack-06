@@ -1,12 +1,13 @@
 import { Express, Router, NextFunction } from 'express';
 import authGuard from '../middlewares/auth-guard';
-import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getActiviesUserCreatorService, getActiviesUserParticipantService, getActivitiesService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService } from '../services/activity-service';
+import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getActiviesUserCreatorService, getActiviesUserParticipantService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService } from '../services/activity-service';
 import activityCreation from '../types/activity/activity-creation';
 import { AppError } from '../types/error/app-error';
 import imageValidation from '../validations/image-validation';
 import { uploadImage } from '../services/s3-service';
 import upload from '../utils/multer';
 import { formatAddress } from '../middlewares/format-address';
+import { getUserPreferences } from '../services/user-service';
 
 export function activityController(server: Express) {
     const router = Router();
@@ -16,32 +17,69 @@ export function activityController(server: Express) {
         try {
             const activitiesTypes = await getActivityTypesService();
             response.status(200).send(activitiesTypes);
+            return;
         } catch (error) {
-            next(error);
+            return next(error);
         }
     });
 
     router.get("/", async function (request, response, next: NextFunction) {
         try {
-
-            const { pageSize = "10", page = "0", typeId, orderBy = "title", order = "asc" } = request.query as { pageSize: string, page: string, typeId: string, orderBy: string, order: string };
-            const orderDirection: "asc" | "desc" = order === "asc" ? "asc" : "desc";
             const userId = request.payload?.id as string;
-            const totalActivities = await countActivitiesTypeService(typeId);
-            const totalPages = Math.ceil(totalActivities / parseInt(pageSize));
-            const previous = parseInt(page) > 0 ? parseInt(page) - 1 : null;
-            const next = parseInt(page) < totalPages - 1 ? parseInt(page) + 1 : null;
 
-            const activities = await getActivitiesService(userId, parseInt(pageSize), parseInt(page), [typeId], { orderBy, order: orderDirection });
+            const {
+                pageSize = "10",
+                page = "0",
+                typeId,
+                orderBy = "title",
+                order = "asc"
+            } = request.query as {
+                pageSize: string,
+                page: string,
+                typeId?: string,
+                orderBy: string,
+                order: "asc" | "desc"
+            };
+
+            const preferences = (await getUserPreferences(userId)).map(p => p.typeId);
+
+            const typeIds = typeId ? [typeId] : [];
+
+            const parsedPage = Number.parseInt(page);
+            const parsedPageSize = Number.parseInt(pageSize);
+
+            let filterIds: string[] | null = null;
+
+            if (typeIds?.length > 0) {
+                filterIds = typeIds;
+            }
+
+            const totalActivities = await countActivitiesTypeService(filterIds);
+
+            const totalPages = Math.ceil(totalActivities / parsedPageSize);
+
+            const previous = parsedPage > 0 ? parsedPage - 1 : null;
+            const next = parsedPage < totalPages - 1 ? parsedPage + 1 : null;
+
+            const activities = await getActivitiesPaginatedFilterOrderByService(
+                userId,
+                parsedPageSize,
+                parsedPage,
+                typeIds,
+                preferences.length > 0 ? preferences : null,
+                { orderBy, order }
+            );
+
             response.status(200).json({
-                page,
-                pageSize,
+                page: parsedPage,
+                pageSize: parsedPageSize,
                 totalActivities,
                 totalPages,
                 previous,
                 next,
                 activities
             });
+
         } catch (error) {
             next(error);
         }
@@ -49,15 +87,12 @@ export function activityController(server: Express) {
 
     router.get("/all", async function (request, response, next: NextFunction) {
         try {
-
-            const { typeId, orderBy = "title", order = "asc" } = request.query as { typeId: string, orderBy: string, order: string };
-            const orderDirection: "asc" | "desc" = order === "asc" ? "asc" : "desc";
+            const { typeId, orderBy, order = "asc" } = request.query as { typeId: string, orderBy: string, order: "asc" | "desc" };
             const userId = request.payload?.id as string;
 
-            const activities = await getActivitiesService(userId, undefined, 0, [typeId], { orderBy, order: orderDirection });
-            response.status(200).json(
-                activities
-            );
+            const activities = getActivitiesAllFilterTypeOrderByService(userId, typeId, { orderBy, order });
+
+            response.status(200).json(activities);
         } catch (error) {
             next(error);
         }
@@ -68,11 +103,11 @@ export function activityController(server: Express) {
             const { pageSize = "10", page = "0" } = request.query as { pageSize: string, page: string };
             const userId = request.payload?.id as string;
             const totalActivities = await countActivitiesCreatorService(userId);
-            const totalPages = Math.ceil(totalActivities / parseInt(pageSize));
-            const previous = parseInt(page) > 0 ? parseInt(page) - 1 : null;
-            const next = parseInt(page) < totalPages - 1 ? parseInt(page) + 1 : null;
+            const totalPages = Math.ceil(totalActivities / Number.parseInt(pageSize));
+            const previous = Number.parseInt(page) > 0 ? Number.parseInt(page) - 1 : null;
+            const next = Number.parseInt(page) < totalPages - 1 ? Number.parseInt(page) + 1 : null;
 
-            const activities = await getActiviesUserCreatorService(userId, parseInt(pageSize), parseInt(page));
+            const activities = await getActiviesUserCreatorService(userId, Number.parseInt(pageSize), Number.parseInt(page));
             response.status(200).json({
                 page,
                 pageSize,
@@ -105,11 +140,11 @@ export function activityController(server: Express) {
             const { pageSize = "10", page = "0" } = request.query as { pageSize: string, page: string };
             const userId = request.payload?.id as string;
             const totalActivities = await countActivitiesParticipantService(userId);
-            const totalPages = Math.ceil(totalActivities / parseInt(pageSize));
-            const previous = parseInt(page) > 0 ? parseInt(page) - 1 : null;
-            const next = parseInt(page) < totalPages - 1 ? parseInt(page) + 1 : null;
+            const totalPages = Math.ceil(totalActivities / Number.parseInt(pageSize));
+            const previous = Number.parseInt(page) > 0 ? Number.parseInt(page) - 1 : null;
+            const next = Number.parseInt(page) < totalPages - 1 ? Number.parseInt(page) + 1 : null;
 
-            const activities = await getActiviesUserParticipantService(userId, parseInt(pageSize), parseInt(page));
+            const activities = await getActiviesUserParticipantService(userId, Number.parseInt(pageSize), Number.parseInt(page));
 
             response.status(200).json({
                 page,

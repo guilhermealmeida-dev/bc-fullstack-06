@@ -1,8 +1,8 @@
 {
   "get": {
-    "summary": "Buscar interesses do usuário",
-    "description": "Endpoint para buscar interreses do usuário.",
-    "tags": ["User"],
+    "summary": "Listar tipos de atividades",
+    "description": "Endpoint para listar os tipos de atividades disponivéis.",
+    "tags": ["Activities"],
     "security": [
       {
         "bearerAuth": []
@@ -16,7 +16,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "../../components/schemas.json#/PreferenceResponseSchema"
+                "$ref": "../../components/schemas.json#/ActivityTypeSchema"
               }
             }
           }

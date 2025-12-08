@@ -1,8 +1,6 @@
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { desactiveAcaunt, findByEmail, findById, update } from "../repository/user-repository";
 import userDataUpdate from "../types/user/user-data-update";
 import bcrypt from "bcryptjs";
-import { AppError } from "../types/error/app-error";
 import { createPreferences, deletePreferencesById, getPreferencesById } from "../repository/preference-repository";
 import { findValidActivityTypes } from "../repository/activity-type-repository";
 import { assignAchievementToUser, hasUserAchieved } from "../repository/user-archievement-repository";

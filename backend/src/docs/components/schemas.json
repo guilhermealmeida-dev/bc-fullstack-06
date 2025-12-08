@@ -149,7 +149,6 @@
         "example": 0,
         "description": "Nível atual do usuário baseado em XP"
       }
-      
     }
   },
 
@@ -237,6 +236,123 @@
       }
     },
     "required": ["email", "password"]
+  },
+
+  "ActivityTypeSchema": {
+    "type": "object",
+    "title": "ActivityTypeSchema",
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "text",
+        "description": "Id do tipo de atividade"
+      },
+      "name": {
+        "type": "string",
+        "format": "text",
+        "description": "Nome do tipo de atividade"
+      },
+      "description": {
+        "type": "string",
+        "format": "text",
+        "description": "Descrição do tipo de atividade"
+      },
+      "image": {
+        "type": "string",
+        "format": "text",
+        "description": "Url da imagem do tipo de atividade"
+      }
+    }
+  },
+  "ActivityResponseSchema": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      },
+      "title": {
+        "type": "string",
+        "example": "string"
+      },
+      "description": {
+        "type": "string",
+        "example": "string"
+      },
+      "type": {
+        "type": "string",
+        "example": "string"
+      },
+      "image": {
+        "type": "string",
+        "example": "string"
+      },
+      "confirmationCode": {
+        "type": "string",
+        "example": "string"
+      },
+      "participantCount": {
+        "type": "integer",
+        "example": 0
+      },
+      "address": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "example": 0
+          },
+          "longitude": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": ["latitude", "longitude"]
+      },
+      "scheduledDate": {
+        "type": "string",
+        "format": "date-time",
+        "example": "2025-03-20T18:00:01.403Z"
+      },
+      "createdAt": {
+        "type": "string",
+        "format": "date-time",
+        "example": "2025-03-20T18:00:01.403Z"
+      },
+      "completedAt": {
+        "type": "string",
+        "format": "date-time",
+        "example": "2025-03-20T18:00:01.403Z"
+      },
+      "private": {
+        "type": "boolean",
+        "example": true
+      },
+      "creator": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          },
+          "name": {
+            "type": "string",
+            "example": "string"
+          },
+          "avatar": {
+            "type": "string",
+            "example": "string"
+          }
+        },
+        "required": ["id", "name"]
+      },
+      "userSubscriptionStatus": {
+        "type": "string",
+        "example": "string"
+      }
+    }
   },
 
   "PreferenceDefineSchema": {

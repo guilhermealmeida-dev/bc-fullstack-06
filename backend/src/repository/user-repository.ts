@@ -1,4 +1,4 @@
-import prismaClient from '../prisma/prisma-client';
+import {prisma as prismaClient} from '../prisma/prisma-client';
 import { AuthRegister } from '../types/auth/auth-register';
 import userUpdate from '../types/user/user-data-update';
 

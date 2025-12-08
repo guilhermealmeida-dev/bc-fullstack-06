@@ -1,4 +1,4 @@
-import prismaClient from "../prisma/prisma-client";
+import {prisma as prismaClient} from "../prisma/prisma-client";
 
 export async function findActivityParticipant(userId: string, activityId: string) {
     return await prismaClient.activityParticipant.findFirst({

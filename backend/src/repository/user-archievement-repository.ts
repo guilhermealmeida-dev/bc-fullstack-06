@@ -1,4 +1,4 @@
-import prismaClient from "../prisma/prisma-client";
+import {prisma as prismaClient} from "../prisma/prisma-client";
 
 export async function assignAchievementToUser(userId: string, achievementId: string) {
     return await prismaClient.userArchievement.create({

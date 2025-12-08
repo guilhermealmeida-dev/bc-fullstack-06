@@ -1,23 +1,20 @@
+import { Prisma } from "@prisma/client";
 import { createActivityParticipant, findActivityParticipant } from "../repository/activity-participant-repository";
-import { checkActivityExists, countActivities, createActivity, findActivityById, getActiviesUserCreator, getActiviesUserParticipant, getActivitiesPaginatedFilterOrderBy, getParticipantsActivy } from "../repository/activity-repository";
+import { checkActivityExistsRepository, countActivitiesRepository, createActivityRepository, findActivityByIdRepository, getActiviesUserCreatorRepository, getActiviesUserParticipantRepository, getActivitiesAllFilterTypeOrderByRepository, getActivitiesPaginatedFilterTypeOrderByRepository, getParticipantsActivitityRepository } from "../repository/activity-repository";
 import { getActivityTypes } from "../repository/activity-type-repository";
-import { getUserPreferencesTypeIds } from "../repository/preference-repository";
 import activityCreation from "../types/activity/activity-creation";
 import { AppError } from "../types/error/app-error";
 import { giveAchievementService, giveXpService } from "./user-service";
-import { randomBytes } from 'crypto';
+import { randomBytes } from 'node:crypto';
+import { getPreferencesById } from "../repository/preference-repository";
 
 export async function getActivityTypesService() {
-    try {
-        return await getActivityTypes();
-    } catch (error) {
-        throw error;
-    }
+    return await getActivityTypes();
 }
 
 export async function countActivitiesCreatorService(userId: string) {
     try {
-        return await countActivities({
+        return await countActivitiesRepository({
             creatorId: userId,
         });
     } catch (error) {
@@ -27,7 +24,7 @@ export async function countActivitiesCreatorService(userId: string) {
 
 export async function countActivitiesParticipantService(userId: string) {
     try {
-        return await countActivities({
+        return await countActivitiesRepository({
             ActivityParticipant: {
                 some: {
                     userId: userId,
@@ -39,71 +36,103 @@ export async function countActivitiesParticipantService(userId: string) {
     }
 }
 
-export async function countActivitiesTypeService(userId: string) {
-    try {
-        return await countActivities({
-            typeId: userId,
-        });
-    } catch (error) {
-        throw error;
+export async function countActivitiesTypeService(typeIds: string[] | null) {
+    const where: Prisma.ActivityWhereInput = {};
+
+    if (typeIds && typeIds.length > 0) {
+        where.typeId = { in: typeIds };
     }
+
+    return await countActivitiesRepository(where);
 }
 
-export async function getActivitiesService(userId: string, pageSize: number | undefined, page: number, typeIds: string[], orderByData: { orderBy: string; order: "asc" | "desc" } | undefined) {
-    try {
-        const isDefined = typeIds[0] === undefined ? false : true;
+export async function getActivitiesPaginatedFilterOrderByService(
+    userId: string,
+    pageSize: number | undefined,
+    page: number,
+    typeIds: string[],
+    preferences: string[] | null,
+    orderByData: { orderBy: string; order: "asc" | "desc" } | undefined) {
 
-        if (typeIds[0] === undefined) {
-            typeIds = await getUserPreferencesTypeIds(userId);
-        }
-        
-        const activities = await getActivitiesPaginatedFilterOrderBy(pageSize, page, typeIds, isDefined, orderByData);
-        const activitiesMap=activities.map(activity => {
-            const { ActivityParticipant = [], confirmationCode, creatorId, user, activityAddresse, ...activityData } = activity;
+    let search: "none" | "preference" | "typeId";
+    let Ids: string[] = [];
 
-            const userSubscriptionStatus = ActivityParticipant.some(participant => participant.userId === userId);
-
-            const participantCount = ActivityParticipant.length;
-
-            return {
-                ...activityData,
-                ...(creatorId === userId ? { confirmationCode } : {}),
-                participantCount,
-                creator: user,
-                address: activityAddresse,
-                userSubscriptionStatus,
-            };
-        });
-        const sortedActivities = activitiesMap.sort((a, b) => {
-            const aPref = typeIds.includes(a.typeId);
-            const bPref = typeIds.includes(b.typeId);
-
-            if (aPref && !bPref) {
-                return -1;
-            }
-            if (!aPref && bPref) {
-                return 1;
-            }
-            return 0;
-        });
-        return sortedActivities;
-
-    } catch (error) {
-        throw error;
+    if (typeIds && typeIds.length > 0) {
+        search = "typeId";
+        Ids = typeIds;
+    } else if (preferences && preferences.length > 0) {
+        search = "preference";
+        Ids = preferences;
+    } else {
+        search = "none";
+        Ids = [];
     }
+
+    const activities = await getActivitiesPaginatedFilterTypeOrderByRepository(
+        userId,
+        pageSize,
+        page,
+        Ids,
+        search,
+        orderByData
+    );
+
+    const activitiesMap = activities.map(activity => {
+        const { ActivityParticipant = [], confirmationCode, creatorId, user, activityAddresse, deletedAt, completedAt, ...activityData } = activity;
+
+        const userSubscriptionStatus = ActivityParticipant.some(participant => participant.userId === userId);
+
+        const participantCount = ActivityParticipant.length;
+
+        return {
+            ...activityData,
+            participantCount,
+            creator: user,
+            address: activityAddresse,
+            userSubscriptionStatus,
+        };
+    });
+
+    return activitiesMap;
+}
+
+export async function getActivitiesAllFilterTypeOrderByService(userId: string, typeId: string, orderByData: { orderBy: string; order: "asc" | "desc" } | undefined) {
+    let search: "none" | "preference" | "typeId";
+    let Ids: string[] = [];
+
+    if (typeId) {
+        search = "typeId";
+        Ids.push(typeId);
+    } else {
+        const preferences = await getPreferencesById(userId);
+
+        if (preferences && preferences.length > 0) {
+            search = "preference";
+            Ids = preferences.map(e => e.id);
+        } else {
+            search = "none";
+            Ids = [];
+        }
+    }
+
+    const activities = getActivitiesAllFilterTypeOrderByRepository(
+        userId,
+        Ids,
+        search,
+        orderByData
+    );
+
+    return activities;
 }
 
 export async function getActiviesUserCreatorService(userId: string, pageSize: number | undefined, page: number | undefined) {
-    try {
-        return await getActiviesUserCreator(userId, pageSize, page);
-    } catch (error) {
-        throw error;
-    }
+
+    return await getActiviesUserCreatorRepository(userId, pageSize, page);
 }
 
 export async function getActiviesUserParticipantService(userId: string, pageSize: number | undefined, page: number | undefined) {
     try {
-        const activities = await getActiviesUserParticipant(userId, pageSize, page);
+        const activities = await getActiviesUserParticipantRepository(userId, pageSize, page);
         return activities.map(activity => {
             const { ActivityParticipant = [], confirmationCode, creatorId, user, activityAddresse, ...activityData } = activity;
 
@@ -128,7 +157,7 @@ export async function getActiviesUserParticipantService(userId: string, pageSize
 
 export async function getParticipantsActivyService(activityId: string) {
     try {
-        const activityExists = await checkActivityExists(activityId);
+        const activityExists = await checkActivityExistsRepository(activityId);
 
         if (!activityExists) {
             const erro: AppError = {
@@ -137,7 +166,7 @@ export async function getParticipantsActivyService(activityId: string) {
             };
             throw erro;
         }
-        const participants = await getParticipantsActivy(activityId);
+        const participants = await getParticipantsActivitityRepository(activityId);
 
         return participants.length > 0 ? participants : [];
     } catch (error) {
@@ -148,11 +177,11 @@ export async function getParticipantsActivyService(activityId: string) {
 export async function createActivityService(userId: string, activity: activityCreation) {
     try {
         activity.confirmationCode = await randomBytes(2).toString('hex').toUpperCase();
-        const activityData = await createActivity(activity);
+        const activityData = await createActivityRepository(activity);
 
-        const activities = await getActiviesUserCreator(userId, undefined, undefined);
+        const activities = await getActiviesUserCreatorRepository(userId, undefined, undefined);
         if (activities.length === 0) {
-            await giveAchievementService(activity.creatorId, "Primeira Atividade Criada",50);
+            await giveAchievementService(activity.creatorId, "Primeira Atividade Criada", 50);
         }
 
         await giveXpService(activity.creatorId, 20);
@@ -177,7 +206,7 @@ export async function createActivityService(userId: string, activity: activityCr
                     name: activityData.user.name,
                     avatar: activityData.user.avatar
                 }
-                : null, 
+                : null,
         };
     } catch (error) {
         throw error;
@@ -185,7 +214,7 @@ export async function createActivityService(userId: string, activity: activityCr
 }
 
 export async function registerUserInActivityService(userId: string, activityId: string) {
-    const activity = await findActivityById(activityId);
+    const activity = await findActivityByIdRepository(activityId);
     if (!activity) {
         const erro: AppError = { message: "Atividade não encontrada.", status: 404 };
         throw erro;
@@ -206,15 +235,15 @@ export async function registerUserInActivityService(userId: string, activityId: 
         const erro: AppError = { message: "Não é possível se inscrever em uma atividade concluída.", status: 400 };
         throw erro;
     }
-     const userRegistrations = await findActivityParticipant(userId,activityId);
-    
-     if (!userRegistrations) {
-        await giveAchievementService(userId, "Primeira Inscrição", 50); 
+    const userRegistrations = await findActivityParticipant(userId, activityId);
+
+    if (!userRegistrations) {
+        await giveAchievementService(userId, "Primeira Inscrição", 50);
     }
- 
-     // Adiciona XP ao usuário
-     await giveXpService(userId, 20);
- 
+
+    // Adiciona XP ao usuário
+    await giveXpService(userId, 20);
+
     return await createActivityParticipant(userId, activityId);
 }
 

@@ -29,7 +29,7 @@ server.use(errorHandler);
 
 // Resources
 server.use("/public", express.static(path.join(__dirname, "../public")));
-createBucket();
+// createBucket();
 
 const port = process.env.PORT;
 

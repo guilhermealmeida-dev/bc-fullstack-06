@@ -10,7 +10,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -20,10 +19,10 @@ model User {
   cpf                 String                @unique
   password            String
   avatar              String
-  xp                  Int @default(0) 
-  level               Int @default(0)
+  xp                  Int                   @default(0)
+  level               Int                   @default(0)
   deletedAt           DateTime?
-  archievements    UserArchievement[]
+  archievements       UserArchievement[]
   Preference          Preference[]
   Activity            Activity[]
   ActivityParticipant ActivityParticipant[]
@@ -92,13 +91,13 @@ model ActivityAddresse {
 }
 
 model ActivityParticipant {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   activityId  String
   userId      String
   aproved     Boolean?
   confirmedAt DateTime?
-  activity    Activity @relation(fields: [activityId], references: [id])
-  user        User     @relation(fields: [userId], references: [id])
+  activity    Activity  @relation(fields: [activityId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
 
   @@map("ActivityParticipants")
 }

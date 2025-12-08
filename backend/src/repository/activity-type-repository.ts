@@ -1,4 +1,4 @@
-import prismaClient from "../prisma/prisma-client";
+import {prisma as prismaClient} from "../prisma/prisma-client";
 
 export async function findValidActivityTypes() {
     const validTypes = await prismaClient.activityType.findMany({
@@ -8,6 +8,7 @@ export async function findValidActivityTypes() {
 }
 
 export async function getActivityTypes() {
-    return await prismaClient.activityType.findMany();
+    return prismaClient.activityType.findMany();
 }
+
 

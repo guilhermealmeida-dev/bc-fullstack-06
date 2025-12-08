@@ -1,0 +1,121 @@
+{
+  "get": {
+    "summary": "Listar atividades com paginação, filtro por tipo e ordenação",
+    "description": "Endpoint para listar de forma paginada as atividades registradas. Parametros opcionais: type(filtra por um tipo especifico de atividade), orderBy (campo pelo qual ordenar as atividades) e order (\"asc\"=crescente,\"desc\"=decrescente).",
+    "tags": ["Activities"],
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "description": "Número da página atual",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "default": 1,
+          "minimum": 1
+        }
+      },
+      {
+        "name": "pageSize",
+        "in": "query",
+        "description": "Quantidade de resultados por página",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "default": 10,
+          "minimum": 1
+        }
+      },
+      {
+        "name": "typeId",
+        "in": "query",
+        "description": "Filtra por um tipo específico de atividade",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "orderBy",
+        "in": "query",
+        "description": "Campo pelo qual ordenar as atividades",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "example": "createdAt"
+        }
+      },
+      {
+        "name": "order",
+        "in": "query",
+        "description": "Direção da ordenação: ascendente ou descendente",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": ["asc", "desc"],
+          "default": "desc"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "page": {
+                  "type": "integer"
+                },
+                "pageSize": {
+                  "type": "integer"
+                },
+                "totalActivities": {
+                  "type": "integer"
+                },
+                "totalPages": {
+                  "type": "integer"
+                },
+                "previous": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "integer"
+                },
+                "activities": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../../components/schemas.json#/ActivityResponseSchema"
+                  }
+                }
+              },
+              "required": [
+                "page",
+                "pageSize",
+                "totalActivities",
+                "totalPages",
+                "activities"
+              ]
+            }
+          }
+        }
+      },
+      "401": {
+        "$ref": "../../components/responses.json#/Unauthorized"
+      },
+      "403": {
+        "$ref": "../../components/responses.json#/Forbidden"
+      },
+      "500": {
+        "$ref": "../../components/responses.json#/InternalServerError"
+      }
+    }
+  }
+}
