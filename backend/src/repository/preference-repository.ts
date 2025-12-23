@@ -1,6 +1,6 @@
 import {prisma as prismaClient} from "../prisma/prisma-client";
 
-export async function getPreferencesById(userId: string) {
+export async function getPreferencesByIdRepository(userId: string) {
     const preferences = await prismaClient.preference.findMany({
         where: {
             userId,

@@ -7,7 +7,7 @@ import imageValidation from '../validations/image-validation';
 import { uploadImage } from '../services/s3-service';
 import upload from '../utils/multer';
 import { formatAddress } from '../middlewares/format-address';
-import { getUserPreferences } from '../services/user-service';
+import { getUserPreferencesService } from '../services/user-service';
 
 export function activityController(server: Express) {
     const router = Router();
@@ -41,7 +41,7 @@ export function activityController(server: Express) {
                 order: "asc" | "desc"
             };
 
-            const preferences = (await getUserPreferences(userId)).map(p => p.typeId);
+            const preferences = (await getUserPreferencesService(userId)).map(p => p.typeId);
 
             const typeIds = typeId ? [typeId] : [];
 
@@ -87,12 +87,21 @@ export function activityController(server: Express) {
 
     router.get("/all", async function (request, response, next: NextFunction) {
         try {
-            const { typeId, orderBy, order = "asc" } = request.query as { typeId: string, orderBy: string, order: "asc" | "desc" };
+            const {
+                typeId,
+                orderBy,
+                order = "asc"
+            } = request.query as {
+                typeId: string,
+                orderBy: string,
+                order: "asc" | "desc"
+            };
             const userId = request.payload?.id as string;
 
-            const activities = getActivitiesAllFilterTypeOrderByService(userId, typeId, { orderBy, order });
+            const activities = await getActivitiesAllFilterTypeOrderByService(userId, typeId, { orderBy, order });
 
             response.status(200).json(activities);
+
         } catch (error) {
             next(error);
         }

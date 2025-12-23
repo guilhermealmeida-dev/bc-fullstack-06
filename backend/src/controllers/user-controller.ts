@@ -1,5 +1,5 @@
 import { Express, Router, NextFunction } from "express";
-import { defineUserPreferences, desactiveUserAcaunt, getUser, getUserPreferences, updateUser } from "../services/user-service";
+import { defineUserPreferences, desactiveUserAcaunt, getUser, getUserPreferencesService, updateUser } from "../services/user-service";
 import authGuard from "../middlewares/auth-guard";
 import { requestBodyValidator } from "../middlewares/request-body-validator";
 import updateUserValidation from "../validations/update-user-validation";
@@ -31,7 +31,7 @@ function userController(server: Express) {
         async (request, response, next: NextFunction) => {
             try {
                 const userId = request.payload?.id as string;
-                const preferences = await getUserPreferences(userId);
+                const preferences = await getUserPreferencesService(userId);
                 response.status(200).send(preferences);
                 return;
             } catch (error) {

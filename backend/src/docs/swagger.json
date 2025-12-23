@@ -39,6 +39,9 @@
     },
     "/activities/": {
       "$ref": "./paths/activities/activities.json"
+    },
+    "/activities/all": {
+      "$ref": "./paths/activities/activities-all.json"
     }
   },
   "components": {

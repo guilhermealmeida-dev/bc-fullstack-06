@@ -6,7 +6,7 @@ import activityCreation from "../types/activity/activity-creation";
 import { AppError } from "../types/error/app-error";
 import { giveAchievementService, giveXpService } from "./user-service";
 import { randomBytes } from 'node:crypto';
-import { getPreferencesById } from "../repository/preference-repository";
+import { getPreferencesByIdRepository } from "../repository/preference-repository";
 
 export async function getActivityTypesService() {
     return await getActivityTypes();
@@ -104,7 +104,7 @@ export async function getActivitiesAllFilterTypeOrderByService(userId: string, t
         search = "typeId";
         Ids.push(typeId);
     } else {
-        const preferences = await getPreferencesById(userId);
+        const preferences = await getPreferencesByIdRepository(userId);
 
         if (preferences && preferences.length > 0) {
             search = "preference";
@@ -115,14 +115,31 @@ export async function getActivitiesAllFilterTypeOrderByService(userId: string, t
         }
     }
 
-    const activities = getActivitiesAllFilterTypeOrderByRepository(
+    const activities = await getActivitiesAllFilterTypeOrderByRepository(
         userId,
         Ids,
         search,
         orderByData
     );
 
-    return activities;
+    const activitiesMap = activities.map(activity => {
+
+        const { ActivityParticipant = [], confirmationCode, creatorId, user, activityAddresse, deletedAt, completedAt, ...activityData } = activity;
+
+        const userSubscriptionStatus = ActivityParticipant.some(participant => participant.userId === userId);
+
+        const participantCount = ActivityParticipant.length;
+
+        return {
+            ...activityData,
+            participantCount,
+            creator: user,
+            address: activityAddresse,
+            userSubscriptionStatus,
+        };
+    });
+
+    return activitiesMap;
 }
 
 export async function getActiviesUserCreatorService(userId: string, pageSize: number | undefined, page: number | undefined) {

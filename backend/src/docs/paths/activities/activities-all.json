@@ -1,0 +1,69 @@
+{
+  "get": {
+    "summary": "Listar todas as atividades com filtro por tipo e ordenação",
+    "description": "Endpoint para listar todas as atividades registradas. Parametros opcionais: type(filtra por um tipo especifico de atividade), orderBy (campo pelo qual ordenar as atividades) e order (\"asc\"=crescente,\"desc\"=decrescente).",
+    "tags": ["Activities"],
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "name": "typeId",
+        "in": "query",
+        "description": "Filtra por um tipo específico de atividade",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      {
+        "name": "orderBy",
+        "in": "query",
+        "description": "Campo pelo qual ordenar as atividades",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "example": "createdAt"
+        }
+      },
+      {
+        "name": "order",
+        "in": "query",
+        "description": "Direção da ordenação: ascendente ou descendente",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": ["asc", "desc"],
+          "default": "desc"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "../../components/schemas.json#/ActivityResponseSchema"
+              }
+            }
+          }
+        }
+      },
+      "401": {
+        "$ref": "../../components/responses.json#/Unauthorized"
+      },
+      "403": {
+        "$ref": "../../components/responses.json#/Forbidden"
+      },
+      "500": {
+        "$ref": "../../components/responses.json#/InternalServerError"
+      }
+    }
+  }
+}

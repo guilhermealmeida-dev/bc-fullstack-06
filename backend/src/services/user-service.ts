@@ -1,7 +1,7 @@
 import { desactiveAcaunt, findByEmail, findById, update } from "../repository/user-repository";
 import userDataUpdate from "../types/user/user-data-update";
 import bcrypt from "bcryptjs";
-import { createPreferences, deletePreferencesById, getPreferencesById } from "../repository/preference-repository";
+import { createPreferences, deletePreferencesById, getPreferencesByIdRepository } from "../repository/preference-repository";
 import { findValidActivityTypes } from "../repository/activity-type-repository";
 import { assignAchievementToUser, hasUserAchieved } from "../repository/user-archievement-repository";
 import { findAchievementByName } from "../repository/archievement-repository";
@@ -17,8 +17,8 @@ export async function getUser(id: string) {
 }
 
 
-export async function getUserPreferences(userId: string) {
-    const preferences = (await getPreferencesById(userId)).map((preference) => ({
+export async function getUserPreferencesService(userId: string) {
+    const preferences = (await getPreferencesByIdRepository(userId)).map((preference) => ({
         typeId: preference.id,
         typeName: preference.name,
         typeDescription: preference.description,
