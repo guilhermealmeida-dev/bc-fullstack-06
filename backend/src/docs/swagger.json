@@ -42,6 +42,9 @@
     },
     "/activities/all": {
       "$ref": "./paths/activities/activities-all.json"
+    },
+    "/activities/user/creator": {
+      "$ref": "./paths/activities/activities-user-creator.json"
     }
   },
   "components": {

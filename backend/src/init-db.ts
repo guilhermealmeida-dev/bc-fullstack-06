@@ -1,4 +1,5 @@
 import { prisma } from "./prisma/prisma-client";
+import bcrypt from "bcryptjs";
 
 async function main() {
   console.log("Iniciando seed do banco...");
@@ -12,21 +13,21 @@ async function main() {
         name: "Guilherme Silva",
         email: "guilherme1@example.com",
         cpf: "11111111111",
-        password: "senha123",
+        password: bcrypt.hashSync("senha123",10),
         avatar: "https://picsum.photos/200?u=1"
       },
       {
         name: "Mariana Souza",
         email: "mariana@example.com",
         cpf: "22222222222",
-        password: "senha123",
+        password: bcrypt.hashSync("senha123",10),
         avatar: "https://picsum.photos/200?u=2"
       },
       {
         name: "Carlos Pereira",
         email: "carlos@example.com",
         cpf: "33333333333",
-        password: "senha123",
+        password: bcrypt.hashSync("senha123",10),
         avatar: "https://picsum.photos/200?u=3"
       }
     ]

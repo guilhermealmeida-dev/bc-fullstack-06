@@ -109,17 +109,20 @@ export function activityController(server: Express) {
 
     router.get("/user/creator", async function (request, response, next: NextFunction) {
         try {
-            const { pageSize = "10", page = "0" } = request.query as { pageSize: string, page: string };
+            const pageNumber = Math.max(0, Number(request.query.page) || 0);
+            const pageSizeNumber = Math.max(1, Number(request.query.pageSize) || 10);
+
+
             const userId = request.payload?.id as string;
             const totalActivities = await countActivitiesCreatorService(userId);
-            const totalPages = Math.ceil(totalActivities / Number.parseInt(pageSize));
-            const previous = Number.parseInt(page) > 0 ? Number.parseInt(page) - 1 : null;
-            const next = Number.parseInt(page) < totalPages - 1 ? Number.parseInt(page) + 1 : null;
+            const totalPages = Math.ceil(totalActivities / pageSizeNumber);
+            const previous = pageNumber > 0 ? pageNumber - 1 : null;
+            const next = pageNumber < totalPages - 1 ? pageNumber + 1 : null;
 
-            const activities = await getActiviesUserCreatorService(userId, Number.parseInt(pageSize), Number.parseInt(page));
+            const activities = await getActiviesUserCreatorService(userId, pageSizeNumber, pageNumber);
             response.status(200).json({
-                page,
-                pageSize,
+                page: pageNumber,
+                pageSize: pageSizeNumber,
                 totalActivities,
                 totalPages,
                 previous,
@@ -135,7 +138,7 @@ export function activityController(server: Express) {
         try {
             const userId = request.payload?.id as string;
 
-            const activities = await getActiviesUserCreatorService(userId, undefined, undefined);
+            const activities = await getActiviesUserCreatorService(userId, 0, 0);
             response.status(200).json(
                 activities
             );

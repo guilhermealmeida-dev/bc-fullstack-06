@@ -3,7 +3,7 @@ import { prisma as prismaClient } from "../prisma/prisma-client";
 import activityCreation from "../types/activity/activity-creation";
 
 export async function getActivitiesPaginatedFilterTypeOrderByRepository(
-    userId:string,
+    userId: string,
     pageSize: number | undefined,
     page: number | undefined,
     Ids: string[],
@@ -13,7 +13,7 @@ export async function getActivitiesPaginatedFilterTypeOrderByRepository(
     const where: Prisma.ActivityWhereInput = {
         completedAt: null,
         deletedAt: null,
-        creatorId: { not: userId},
+        creatorId: { not: userId },
         ...(search === "typeId" && Ids.length > 0 && { typeId: { in: Ids } })
     };
 
@@ -59,7 +59,7 @@ export async function getActivitiesPaginatedFilterTypeOrderByRepository(
 }
 
 export async function getActivitiesAllFilterTypeOrderByRepository(
-    userId:string,
+    userId: string,
     Ids: string[],
     search: "none" | "typeId" | "preference",
     orderByData: { orderBy?: string; order?: "asc" | "desc" } | undefined
@@ -67,7 +67,7 @@ export async function getActivitiesAllFilterTypeOrderByRepository(
     const where: Prisma.ActivityWhereInput = {
         completedAt: null,
         deletedAt: null,
-        creatorId: { not: userId},
+        creatorId: { not: userId },
         ...(search === "typeId" && Ids.length > 0 && { typeId: { in: Ids } })
     };
 
@@ -110,9 +110,9 @@ export async function countActivitiesRepository(where: Prisma.ActivityWhereInput
     return await prismaClient.activity.count({ where });
 }
 
-export async function getActiviesUserCreatorRepository(userId: string, pageSize: number | undefined, page: number | undefined) {
+export async function getActiviesUserCreatorRepository(userId: string, pageSize: number, skip: number | undefined) {
     const activities = await prismaClient.activity.findMany({
-        skip: page,
+        skip: skip,
         take: pageSize,
         where: {
             creatorId: userId,

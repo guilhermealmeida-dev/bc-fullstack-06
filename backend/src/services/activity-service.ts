@@ -142,9 +142,13 @@ export async function getActivitiesAllFilterTypeOrderByService(userId: string, t
     return activitiesMap;
 }
 
-export async function getActiviesUserCreatorService(userId: string, pageSize: number | undefined, page: number | undefined) {
+export async function getActiviesUserCreatorService(userId: string, pageSize: number, page: number) {
+    const skip =
+        page && pageSize
+            ? (page - 1) * pageSize
+            : undefined;
 
-    return await getActiviesUserCreatorRepository(userId, pageSize, page);
+    return await getActiviesUserCreatorRepository(userId, pageSize, skip);
 }
 
 export async function getActiviesUserParticipantService(userId: string, pageSize: number | undefined, page: number | undefined) {
@@ -196,7 +200,7 @@ export async function createActivityService(userId: string, activity: activityCr
         activity.confirmationCode = await randomBytes(2).toString('hex').toUpperCase();
         const activityData = await createActivityRepository(activity);
 
-        const activities = await getActiviesUserCreatorRepository(userId, undefined, undefined);
+        const activities = await getActiviesUserCreatorRepository(userId, 0, 0);
         if (activities.length === 0) {
             await giveAchievementService(activity.creatorId, "Primeira Atividade Criada", 50);
         }

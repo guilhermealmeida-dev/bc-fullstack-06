@@ -1,7 +1,7 @@
 {
   "get": {
-    "summary": "Listar atividades com paginação, filtro por tipo e ordenação",
-    "description": "Endpoint para listar de forma paginada as atividades registradas. Parametros opcionais: type(filtra por um tipo especifico de atividade), orderBy (campo pelo qual ordenar as atividades) e order (\"asc\"=crescente,\"desc\"=decrescente).",
+    "summary": "Buscar atividades criadas pelo usuário",
+    "description": "Endpoint para listar de forma paginada as atividades criadas pelo usuário logado.",
     "tags": ["Activities"],
     "security": [
       {
@@ -29,37 +29,6 @@
           "type": "integer",
           "default": 10,
           "minimum": 1
-        }
-      },
-      {
-        "name": "typeId",
-        "in": "query",
-        "description": "Filtra por um tipo específico de atividade",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      {
-        "name": "orderBy",
-        "in": "query",
-        "description": "Campo pelo qual ordenar as atividades",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "example": "createdAt"
-        }
-      },
-      {
-        "name": "order",
-        "in": "query",
-        "description": "Direção da ordenação: ascendente ou descendente",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "enum": ["asc", "desc"],
-          "default": "desc"
         }
       }
     ],
