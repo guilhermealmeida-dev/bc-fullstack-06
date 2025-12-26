@@ -1,6 +1,6 @@
 import { Express, Router, NextFunction } from 'express';
 import authGuard from '../middlewares/auth-guard';
-import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getActiviesUserCreatorService, getActiviesUserParticipantService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService } from '../services/activity-service';
+import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getAllActiviesUserCreatorPaginatedService, getActiviesUserParticipantService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService, getAllActiviesUserCreatorService } from '../services/activity-service';
 import activityCreation from '../types/activity/activity-creation';
 import { AppError } from '../types/error/app-error';
 import imageValidation from '../validations/image-validation';
@@ -119,7 +119,7 @@ export function activityController(server: Express) {
             const previous = pageNumber > 0 ? pageNumber - 1 : null;
             const next = pageNumber < totalPages - 1 ? pageNumber + 1 : null;
 
-            const activities = await getActiviesUserCreatorService(userId, pageSizeNumber, pageNumber);
+            const activities = await getAllActiviesUserCreatorPaginatedService(userId, pageSizeNumber, pageNumber);
             response.status(200).json({
                 page: pageNumber,
                 pageSize: pageSizeNumber,
@@ -138,7 +138,7 @@ export function activityController(server: Express) {
         try {
             const userId = request.payload?.id as string;
 
-            const activities = await getActiviesUserCreatorService(userId, 0, 0);
+            const activities = await getAllActiviesUserCreatorService(userId);
             response.status(200).json(
                 activities
             );

@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 import { prisma as prismaClient } from "../prisma/prisma-client";
 import activityCreation from "../types/activity/activity-creation";
 
-export async function getActivitiesPaginatedFilterTypeOrderByRepository(
+export async function findActivitiesFilterTypeOrderByPaginatedRepository(
     userId: string,
     pageSize: number | undefined,
     page: number | undefined,
@@ -58,7 +58,7 @@ export async function getActivitiesPaginatedFilterTypeOrderByRepository(
     return activities;
 }
 
-export async function getActivitiesAllFilterTypeOrderByRepository(
+export async function findAllActivitiesFilterTypeOrderByRepository(
     userId: string,
     Ids: string[],
     search: "none" | "typeId" | "preference",
@@ -110,10 +110,53 @@ export async function countActivitiesRepository(where: Prisma.ActivityWhereInput
     return await prismaClient.activity.count({ where });
 }
 
-export async function getActiviesUserCreatorRepository(userId: string, pageSize: number, skip: number | undefined) {
+export async function findAllActiviesUserCreatorPaginatedRepository(userId: string, pageSize: number, skip: number | undefined) {
     const activities = await prismaClient.activity.findMany({
         skip: skip,
         take: pageSize,
+        where: {
+            creatorId: userId,
+        },
+        include: {
+            activityAddresse: {
+                select: {
+                    latitude: true,
+                    longitude: true,
+                }
+            },
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    avatar: true,
+                }
+            },
+            ActivityParticipant: {
+                where: {
+                    aproved: true,
+                },
+                select: {
+                    userId: true
+                }
+            }
+        }
+    });
+    return activities.map(activity => {
+        const { ActivityParticipant = [], creatorId, user, activityAddresse, ...activityData } = activity;
+
+        const participantCount = ActivityParticipant.length;
+
+        return {
+            ...activityData,
+            creator: user,
+            address: activityAddresse,
+            participantCount
+        };
+    });
+}
+
+export async function findAllActiviesUserCreatorRepository(userId: string) {
+    const activities = await prismaClient.activity.findMany({
         where: {
             creatorId: userId,
         },

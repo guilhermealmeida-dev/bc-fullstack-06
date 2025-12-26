@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { createActivityParticipant, findActivityParticipant } from "../repository/activity-participant-repository";
-import { checkActivityExistsRepository, countActivitiesRepository, createActivityRepository, findActivityByIdRepository, getActiviesUserCreatorRepository, getActiviesUserParticipantRepository, getActivitiesAllFilterTypeOrderByRepository, getActivitiesPaginatedFilterTypeOrderByRepository, getParticipantsActivitityRepository } from "../repository/activity-repository";
+import { checkActivityExistsRepository, countActivitiesRepository, createActivityRepository, findActivityByIdRepository, findAllActiviesUserCreatorPaginatedRepository, findAllActiviesUserCreatorRepository, getActiviesUserParticipantRepository, findAllActivitiesFilterTypeOrderByRepository, findActivitiesFilterTypeOrderByPaginatedRepository, getParticipantsActivitityRepository } from "../repository/activity-repository";
 import { getActivityTypes } from "../repository/activity-type-repository";
 import activityCreation from "../types/activity/activity-creation";
 import { AppError } from "../types/error/app-error";
@@ -13,27 +13,23 @@ export async function getActivityTypesService() {
 }
 
 export async function countActivitiesCreatorService(userId: string) {
-    try {
-        return await countActivitiesRepository({
-            creatorId: userId,
-        });
-    } catch (error) {
-        throw error;
-    }
+
+    return await countActivitiesRepository({
+        creatorId: userId,
+    });
+
 }
 
 export async function countActivitiesParticipantService(userId: string) {
-    try {
-        return await countActivitiesRepository({
-            ActivityParticipant: {
-                some: {
-                    userId: userId,
-                }
+
+    return await countActivitiesRepository({
+        ActivityParticipant: {
+            some: {
+                userId: userId,
             }
-        });
-    } catch (error) {
-        throw error;
-    }
+        }
+    });
+
 }
 
 export async function countActivitiesTypeService(typeIds: string[] | null) {
@@ -68,7 +64,7 @@ export async function getActivitiesPaginatedFilterOrderByService(
         Ids = [];
     }
 
-    const activities = await getActivitiesPaginatedFilterTypeOrderByRepository(
+    const activities = await findActivitiesFilterTypeOrderByPaginatedRepository(
         userId,
         pageSize,
         page,
@@ -115,7 +111,7 @@ export async function getActivitiesAllFilterTypeOrderByService(userId: string, t
         }
     }
 
-    const activities = await getActivitiesAllFilterTypeOrderByRepository(
+    const activities = await findAllActivitiesFilterTypeOrderByRepository(
         userId,
         Ids,
         search,
@@ -142,96 +138,95 @@ export async function getActivitiesAllFilterTypeOrderByService(userId: string, t
     return activitiesMap;
 }
 
-export async function getActiviesUserCreatorService(userId: string, pageSize: number, page: number) {
+export async function getAllActiviesUserCreatorPaginatedService(userId: string, pageSize: number, page: number) {
     const skip =
         page && pageSize
             ? (page - 1) * pageSize
             : undefined;
 
-    return await getActiviesUserCreatorRepository(userId, pageSize, skip);
+    return await findAllActiviesUserCreatorPaginatedRepository(userId, pageSize, skip);
+}
+
+export async function getAllActiviesUserCreatorService(userId: string) {
+
+    return await findAllActiviesUserCreatorRepository(userId);
 }
 
 export async function getActiviesUserParticipantService(userId: string, pageSize: number | undefined, page: number | undefined) {
-    try {
-        const activities = await getActiviesUserParticipantRepository(userId, pageSize, page);
-        return activities.map(activity => {
-            const { ActivityParticipant = [], confirmationCode, creatorId, user, activityAddresse, ...activityData } = activity;
 
-            const userSubscriptionStatus = ActivityParticipant.some(participant => participant.userId === userId);
+    const activities = await getActiviesUserParticipantRepository(userId, pageSize, page);
+    return activities.map(activity => {
+        const { ActivityParticipant = [], confirmationCode, creatorId, user, activityAddresse, ...activityData } = activity;
 
-            const participantCount = ActivityParticipant.length;
+        const userSubscriptionStatus = ActivityParticipant.some(participant => participant.userId === userId);
 
-            return {
-                ...activityData,
-                ...(creatorId === userId ? { confirmationCode } : {}),
-                participantCount,
-                creator: user,
-                address: activityAddresse,
-                userSubscriptionStatus,
+        const participantCount = ActivityParticipant.length;
 
-            };
-        });
-    } catch (error) {
-        throw error;
-    }
+        return {
+            ...activityData,
+            ...(creatorId === userId ? { confirmationCode } : {}),
+            participantCount,
+            creator: user,
+            address: activityAddresse,
+            userSubscriptionStatus,
+
+        };
+    });
+
 }
 
 export async function getParticipantsActivyService(activityId: string) {
-    try {
-        const activityExists = await checkActivityExistsRepository(activityId);
 
-        if (!activityExists) {
-            const erro: AppError = {
-                message: "Atividade não encontrada.",
-                status: 404,
-            };
-            throw erro;
-        }
-        const participants = await getParticipantsActivitityRepository(activityId);
+    const activityExists = await checkActivityExistsRepository(activityId);
 
-        return participants.length > 0 ? participants : [];
-    } catch (error) {
-        throw error;
+    if (!activityExists) {
+        const erro: AppError = {
+            message: "Atividade não encontrada.",
+            status: 404,
+        };
+        throw erro;
     }
+    const participants = await getParticipantsActivitityRepository(activityId);
+
+    return participants.length > 0 ? participants : [];
+
 }
 
 export async function createActivityService(userId: string, activity: activityCreation) {
-    try {
-        activity.confirmationCode = await randomBytes(2).toString('hex').toUpperCase();
-        const activityData = await createActivityRepository(activity);
 
-        const activities = await getActiviesUserCreatorRepository(userId, 0, 0);
-        if (activities.length === 0) {
-            await giveAchievementService(activity.creatorId, "Primeira Atividade Criada", 50);
-        }
+    activity.confirmationCode = randomBytes(2).toString('hex').toUpperCase();
+    const activityData = await createActivityRepository(activity);
 
-        await giveXpService(activity.creatorId, 20);
-
-        return {
-            id: activityData.id,
-            title: activityData.title,
-            description: activityData.description,
-            typeId: activityData.typeId,
-            image: activityData.image,
-            address: {
-                latitude: activityData.activityAddresse?.latitude,
-                longitude: activityData.activityAddresse?.longitude
-            },
-            sheduledDate: activityData.sheduledDate,
-            createdAt: activityData.createdAt,
-            completedAt: activityData.completedAt,
-            private: activityData.private,
-            creator: activityData.user
-                ? {
-                    id: activityData.user.id,
-                    name: activityData.user.name,
-                    avatar: activityData.user.avatar
-                }
-                : null,
-        };
-    } catch (error) {
-        throw error;
+    const activities = await findAllActiviesUserCreatorPaginatedRepository(userId, 0, 0);
+    if (activities.length === 0) {
+        await giveAchievementService(activity.creatorId, "Primeira Atividade Criada", 50);
     }
+
+    await giveXpService(activity.creatorId, 20);
+
+    return {
+        id: activityData.id,
+        title: activityData.title,
+        description: activityData.description,
+        typeId: activityData.typeId,
+        image: activityData.image,
+        address: {
+            latitude: activityData.activityAddresse?.latitude,
+            longitude: activityData.activityAddresse?.longitude
+        },
+        sheduledDate: activityData.sheduledDate,
+        createdAt: activityData.createdAt,
+        completedAt: activityData.completedAt,
+        private: activityData.private,
+        creator: activityData.user
+            ? {
+                id: activityData.user.id,
+                name: activityData.user.name,
+                avatar: activityData.user.avatar
+            }
+            : null,
+    };
+
 }
 
 export async function registerUserInActivityService(userId: string, activityId: string) {
