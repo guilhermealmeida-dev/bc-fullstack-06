@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { createActivityParticipant, findActivityParticipant } from "../repository/activity-participant-repository";
-import { checkActivityExistsRepository, countActivitiesRepository, createActivityRepository, findActivityByIdRepository, findAllActiviesUserCreatorPaginatedRepository, findAllActiviesUserCreatorRepository, getActiviesUserParticipantRepository, findAllActivitiesFilterTypeOrderByRepository, findActivitiesFilterTypeOrderByPaginatedRepository, getParticipantsActivitityRepository } from "../repository/activity-repository";
+import { checkActivityExistsRepository, countActivitiesRepository, createActivityRepository, findActivityByIdRepository, findAllActiviesUserCreatorPaginatedRepository, findAllActiviesUserCreatorRepository, findActiviesUserParticipantPaginatedRepository, findAllActivitiesFilterTypeOrderByRepository, findActivitiesFilterTypeOrderByPaginatedRepository, getParticipantsActivitityRepository, findAllActiviesUserParticipantRepository } from "../repository/activity-repository";
 import { getActivityTypes } from "../repository/activity-type-repository";
 import activityCreation from "../types/activity/activity-creation";
 import { AppError } from "../types/error/app-error";
@@ -152,9 +152,9 @@ export async function getAllActiviesUserCreatorService(userId: string) {
     return await findAllActiviesUserCreatorRepository(userId);
 }
 
-export async function getActiviesUserParticipantService(userId: string, pageSize: number | undefined, page: number | undefined) {
+export async function getActiviesUserParticipantPaginatedService(userId: string, pageSize: number | undefined, page: number | undefined) {
 
-    const activities = await getActiviesUserParticipantRepository(userId, pageSize, page);
+    const activities = await findActiviesUserParticipantPaginatedRepository(userId, pageSize, page);
     return activities.map(activity => {
         const { ActivityParticipant = [], confirmationCode, creatorId, user, activityAddresse, ...activityData } = activity;
 
@@ -173,6 +173,28 @@ export async function getActiviesUserParticipantService(userId: string, pageSize
         };
     });
 
+}
+
+export async function getAllActiviesUserParticipantService(userId:string) {
+    const activities= await findAllActiviesUserParticipantRepository(userId);
+    
+     return activities.map(activity => {
+        const { ActivityParticipant = [], confirmationCode, creatorId, user, activityAddresse, ...activityData } = activity;
+
+        const userSubscriptionStatus = ActivityParticipant.some(participant => participant.userId === userId);
+
+        const participantCount = ActivityParticipant.length;
+
+        return {
+            ...activityData,
+            ...(creatorId === userId ? { confirmationCode } : {}),
+            participantCount,
+            creator: user,
+            address: activityAddresse,
+            userSubscriptionStatus,
+
+        };
+    });
 }
 
 export async function getParticipantsActivyService(activityId: string) {

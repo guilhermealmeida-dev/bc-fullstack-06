@@ -1,6 +1,6 @@
 import { Express, Router, NextFunction } from 'express';
 import authGuard from '../middlewares/auth-guard';
-import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getAllActiviesUserCreatorPaginatedService, getActiviesUserParticipantService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService, getAllActiviesUserCreatorService } from '../services/activity-service';
+import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getAllActiviesUserCreatorPaginatedService, getActiviesUserParticipantPaginatedService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService, getAllActiviesUserCreatorService, getAllActiviesUserParticipantService } from '../services/activity-service';
 import activityCreation from '../types/activity/activity-creation';
 import { AppError } from '../types/error/app-error';
 import imageValidation from '../validations/image-validation';
@@ -148,6 +148,7 @@ export function activityController(server: Express) {
     });
 
     router.get("/user/participant", async function (request, response, next: NextFunction) {
+        
         try {
             const { pageSize = "10", page = "0" } = request.query as { pageSize: string, page: string };
             const userId = request.payload?.id as string;
@@ -156,7 +157,7 @@ export function activityController(server: Express) {
             const previous = Number.parseInt(page) > 0 ? Number.parseInt(page) - 1 : null;
             const next = Number.parseInt(page) < totalPages - 1 ? Number.parseInt(page) + 1 : null;
 
-            const activities = await getActiviesUserParticipantService(userId, Number.parseInt(pageSize), Number.parseInt(page));
+            const activities = await getActiviesUserParticipantPaginatedService(userId, Number.parseInt(pageSize), Number.parseInt(page));
 
             response.status(200).json({
                 page,
@@ -175,7 +176,7 @@ export function activityController(server: Express) {
     router.get("/user/participant/all", async function (request, response, next: NextFunction) {
         try {
             const userId = request.payload?.id as string;
-            const activities = await getActiviesUserParticipantService(userId, undefined, undefined);
+            const activities = await getAllActiviesUserParticipantService(userId);
             response.status(200).json(activities);
         } catch (error) {
             next(error);

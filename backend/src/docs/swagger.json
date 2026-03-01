@@ -48,7 +48,14 @@
     },
     "/activities/user/creator/all": {
       "$ref": "./paths/activities/activities-user-creator-all.json"
+    },
+    "/activities/user/participant": {
+      "$ref": "./paths/activities/activities-user-participant.json"
+    },
+     "/activities/user/participant/all": {
+      "$ref": "./paths/activities/activities-user-participant-all.json"
     }
+
   },
   "components": {
     "responses": {

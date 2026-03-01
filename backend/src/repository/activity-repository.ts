@@ -198,7 +198,7 @@ export async function findAllActiviesUserCreatorRepository(userId: string) {
     });
 }
 
-export async function getActiviesUserParticipantRepository(userId: string, pageSize: number | undefined, page: number | undefined) {
+export async function findActiviesUserParticipantPaginatedRepository(userId: string, pageSize: number | undefined, page: number | undefined) {
     return prismaClient.activity.findMany({
         skip: page,
         take: pageSize,
@@ -232,6 +232,42 @@ export async function getActiviesUserParticipantRepository(userId: string, pageS
                 }
             }
         }
+    });
+}
+
+export async function findAllActiviesUserParticipantRepository(userId: string) {
+    return await prismaClient.activity.findMany({
+        where: {
+            ActivityParticipant: {
+                some: {
+                    userId: userId
+                }
+            }
+        },
+        include:{
+             activityAddresse: {
+                select: {
+                    latitude: true,
+                    longitude: true,
+                }
+            },
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    avatar: true,
+                }
+            },
+            ActivityParticipant: {
+                where: {
+                    aproved: true,
+                },
+                select: {
+                    userId: true,
+                }
+            }
+        }
+
     });
 }
 

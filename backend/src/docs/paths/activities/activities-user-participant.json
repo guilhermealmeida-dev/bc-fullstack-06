@@ -1,7 +1,7 @@
 {
   "get": {
-    "summary": "Buscar atividades criadas pelo usuário",
-    "description": "Endpoint para listar de forma paginada as atividades criadas pelo usuário logado.",
+    "summary": "Buscar atividades em que o usuário se inscreveu",
+    "description": "Endpoint para listar de forma paginada as atividades em que o usuário logado se inscreveu.",
     "tags": ["Activities"],
     "security": [
       {
