@@ -7,6 +7,7 @@ import { AppError } from "../types/error/app-error";
 import { giveAchievementService, giveXpService } from "./user-service";
 import { randomBytes } from 'node:crypto';
 import { getPreferencesByIdRepository } from "../repository/preference-repository";
+import { createError } from "../utils/create-error";
 
 export async function getActivityTypesService() {
     return await getActivityTypes();
@@ -202,16 +203,20 @@ export async function getParticipantsActivyService(activityId: string) {
     const activityExists = await checkActivityExistsRepository(activityId);
 
     if (!activityExists) {
-        const erro: AppError = {
-            message: "Atividade não encontrada.",
-            status: 404,
-        };
-        throw erro;
+        throw createError("Atividade não encontrada.",404);
     }
     const participants = await getParticipantsActivitityRepository(activityId);
 
-    return participants.length > 0 ? participants : [];
-
+    return participants.map(participant=>{
+        return {
+            id: participant.id,
+            userId: participant.user.id,
+            name: participant.user.name,
+            avatar: participant.user.avatar,
+            subscriptionStatus: participant.aproved,
+            confirmedAt: participant.confirmedAt
+        }
+    });
 }
 
 export async function createActivityService(userId: string, activity: activityCreation) {

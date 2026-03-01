@@ -277,6 +277,8 @@ export async function getParticipantsActivitityRepository(activityId: string) {
             activityId: activityId,
         },
         select: {
+            
+            id: true,
             user: {
                 select: {
                     id: true,
@@ -284,17 +286,12 @@ export async function getParticipantsActivitityRepository(activityId: string) {
                     avatar: true
                 }
             },
-            activityId: true,
-            confirmedAt: true
+            aproved: true,
+            confirmedAt: true,
         }
     });
-    return participants.map(({ activityId, confirmedAt, user }) => ({
-        activityId,
-        ...user,
-        subscriptionStatus: true,
-        confirmedAt
 
-    }));
+    return participants;
 }
 
 export async function checkActivityExistsRepository(activityId: string): Promise<boolean> {

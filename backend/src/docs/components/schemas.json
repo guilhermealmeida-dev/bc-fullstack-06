@@ -386,5 +386,47 @@
       }
     },
     "required": ["typeId", "typeName"]
+  },
+
+  "ParticipantResponseSchema": {
+    "type": "object",
+    "title": "ParticipantResponseSchema",
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Identificador único"
+      },
+      "userId": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Identificador único do usuário"
+      },
+      "name": {
+        "type": "string",
+        "description": "Nome da do usuário"
+      },
+      "avatar": {
+        "type": "string",
+        "description": "Avatar do usuário"
+      },
+      "subscriptionStatus": {
+        "type": "string",
+        "description": "Status de inscrilção do usuário"
+      },
+      "confirmedAt": {
+        "type": "string",
+        "format": "date-time",
+        "example": "2025-03-20T18:00:01.403Z"
+      }
+    },
+    "required": [
+      "id",
+      "userId",
+      "name",
+      "avatar",
+      "subscriptionStatus",
+      "confirmedAt"
+    ]
   }
 }

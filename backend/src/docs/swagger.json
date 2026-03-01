@@ -52,10 +52,12 @@
     "/activities/user/participant": {
       "$ref": "./paths/activities/activities-user-participant.json"
     },
-     "/activities/user/participant/all": {
+    "/activities/user/participant/all": {
       "$ref": "./paths/activities/activities-user-participant-all.json"
+    },
+    "/activities/{id}/participants": {
+      "$ref": "./paths/activities/activities-participants.json"
     }
-
   },
   "components": {
     "responses": {
