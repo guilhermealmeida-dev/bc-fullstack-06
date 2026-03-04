@@ -2,12 +2,15 @@ import { Express, Router, NextFunction } from 'express';
 import authGuard from '../middlewares/auth-guard';
 import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getAllActiviesUserCreatorPaginatedService, getActiviesUserParticipantPaginatedService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService, getAllActiviesUserCreatorService, getAllActiviesUserParticipantService } from '../services/activity-service';
 import activityCreation from '../types/activity/activity-creation';
-import { AppError } from '../types/error/app-error';
 import imageValidation from '../validations/image-validation';
 import { uploadImage } from '../services/s3-service';
 import upload from '../utils/multer';
-import { formatAddress } from '../middlewares/format-address';
+import { formatAddress } from '../utils/format-address';
 import { getUserPreferencesService } from '../services/user-service';
+import { requestBodyValidator } from '../middlewares/request-body-validator';
+import { createActivityValidation } from '../validations/create-activity-validator';
+import { requestFileValidator } from '../middlewares/requeste-file-validator';
+import { generateConfirmationCode } from '../utils/generate-confirmation-code';
 
 export function activityController(server: Express) {
     const router = Router();
@@ -193,27 +196,18 @@ export function activityController(server: Express) {
         }
     });
 
-    router.post("/new", upload.single("image"), async function (request, response, next: NextFunction) {
+    router.post("/new", upload.single("image"),requestBodyValidator(createActivityValidation), requestFileValidator(imageValidation) , async function (request, response, next: NextFunction) {
         try {
             const userId = request.payload?.id as string;
-            const fileImage = request.file;
-            const result = imageValidation.safeParse(fileImage);
-            if (!result.success) {
-                const erro: AppError = {
-                    message: result.error.errors[0].message,
-                    status: 400
-                }
-                next(erro);
-                return;
-            }
-            const fileUrl = await uploadImage(fileImage!, userId, "activity");
-
+            const image = request.file;
+            
             let { title, description, typeId, address, scheduledDate, private: isPrivate } = request.body;
+            
+            const fileUrl = await uploadImage(image!, userId, "activity");
 
             const formattedAddress = formatAddress(address);
-
+            const confirmationCode= generateConfirmationCode();
             const formattedScheduledDate = new Date(scheduledDate);
-            const privateStatus = isPrivate === 'true';
 
             const activityCreation: activityCreation = {
                 title,
@@ -221,15 +215,16 @@ export function activityController(server: Express) {
                 typeId,
                 address: formattedAddress,
                 sheduledDate: formattedScheduledDate,
-                private: privateStatus,
-                confirmationCode: "",
+                private: isPrivate,
+                confirmationCode: confirmationCode,
                 image: fileUrl.url,
                 createdAt: new Date(),
                 creatorId: userId
             };
-            const activity = await createActivityService(userId, activityCreation);
 
-            response.status(200).json(activity);
+            const activity = await createActivityService(activityCreation);
+
+            response.status(201).json(activity);
 
         } catch (error) {
             next(error);

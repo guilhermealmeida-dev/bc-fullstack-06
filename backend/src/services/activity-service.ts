@@ -5,7 +5,6 @@ import { getActivityTypes } from "../repository/activity-type-repository";
 import activityCreation from "../types/activity/activity-creation";
 import { AppError } from "../types/error/app-error";
 import { giveAchievementService, giveXpService } from "./user-service";
-import { randomBytes } from 'node:crypto';
 import { getPreferencesByIdRepository } from "../repository/preference-repository";
 import { createError } from "../utils/create-error";
 
@@ -219,41 +218,40 @@ export async function getParticipantsActivyService(activityId: string) {
     });
 }
 
-export async function createActivityService(userId: string, activity: activityCreation) {
-
-    activity.confirmationCode = randomBytes(2).toString('hex').toUpperCase();
+export async function createActivityService(activity: activityCreation) {
     const activityData = await createActivityRepository(activity);
 
-    const activities = await findAllActiviesUserCreatorPaginatedRepository(userId, 0, 0);
+    const activities = await findAllActiviesUserCreatorRepository(activity.creatorId);
     if (activities.length === 0) {
         await giveAchievementService(activity.creatorId, "Primeira Atividade Criada", 50);
     }
 
     await giveXpService(activity.creatorId, 20);
 
-    return {
-        id: activityData.id,
-        title: activityData.title,
-        description: activityData.description,
-        typeId: activityData.typeId,
-        image: activityData.image,
-        address: {
-            latitude: activityData.activityAddresse?.latitude,
-            longitude: activityData.activityAddresse?.longitude
-        },
-        sheduledDate: activityData.sheduledDate,
-        createdAt: activityData.createdAt,
-        completedAt: activityData.completedAt,
-        private: activityData.private,
-        creator: activityData.user
-            ? {
-                id: activityData.user.id,
-                name: activityData.user.name,
-                avatar: activityData.user.avatar
-            }
-            : null,
-    };
+    // return {
+    //     id: activityData.id,
+    //     title: activityData.title,
+    //     description: activityData.description,
+    //     typeId: activityData.typeId,
+    //     image: activityData.image,
+    //     address: {
+    //         latitude: activityData.activityAddresse?.latitude,
+    //         longitude: activityData.activityAddresse?.longitude
+    //     },
+    //     sheduledDate: activityData.sheduledDate,
+    //     createdAt: activityData.createdAt,
+    //     completedAt: activityData.completedAt,
+    //     private: activityData.private,
+    //     creator: activityData.user
+    //         ? {
+    //             id: activityData.user.id,
+    //             name: activityData.user.name,
+    //             avatar: activityData.user.avatar
+    //         }
+    //         : null,
+    // };
 
+    return activityData;
 }
 
 export async function registerUserInActivityService(userId: string, activityId: string) {

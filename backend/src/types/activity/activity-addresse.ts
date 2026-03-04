@@ -1,5 +1,5 @@
 type activityAddresse = {
-    activityId: string
+    activityId?: string
     latitude: number,
     longitude: number
 };

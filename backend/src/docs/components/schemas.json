@@ -428,5 +428,52 @@
       "subscriptionStatus",
       "confirmedAt"
     ]
+  },
+
+  "ActivityCreationSchema": {
+    "type": "object",
+    "required": [
+      "title",
+      "description",
+      "typeId",
+      "scheduledDate",
+      "private",
+      "image",
+      "address"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "description": "Título da atividade"
+      },
+      "description": {
+        "type": "string",
+        "description": "Descrição da atividade"
+      },
+      "typeId": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Identificador do tipo da atividade"
+      },
+      "address": {
+        "type": "string",
+        "description": "Local da atividade no formato 'latitude,longitude'",
+        "example": "-12.9714,-38.5014"
+      },
+      "image": {
+        "type": "string",
+        "format": "binary",
+        "description": "Arquivo de imagem (PNG ou JPG)."
+      },
+      "scheduledDate": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Data e horário da atividade"
+      },
+      "private": {
+        "type": "boolean",
+        "description": "Define se a atividade é privada (true) ou pública (false)"
+      }
+    }
   }
 }

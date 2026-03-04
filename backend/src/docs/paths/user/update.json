@@ -29,7 +29,7 @@
         }
       },
       "400": {
-        "$ref": "../../components/responses.json#/BadRequeste"
+        "$ref": "../../components/responses.json#/BadRequest"
       },
       "401": {
         "$ref": "../../components/responses.json#/Unauthorized"

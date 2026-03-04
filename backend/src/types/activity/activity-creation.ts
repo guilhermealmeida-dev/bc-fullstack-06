@@ -12,4 +12,5 @@ type activityCreation = {
     private: boolean,
     creatorId: string,
 };
+
 export default activityCreation;

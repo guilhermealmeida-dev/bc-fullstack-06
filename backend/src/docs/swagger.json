@@ -57,6 +57,9 @@
     },
     "/activities/{id}/participants": {
       "$ref": "./paths/activities/activities-participants.json"
+    },
+    "/activities/new": {
+      "$ref": "./paths/activities/activities-new.json"
     }
   },
   "components": {

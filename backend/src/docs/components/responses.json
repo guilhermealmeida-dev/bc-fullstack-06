@@ -16,8 +16,8 @@
     }
   },
 
-  "BadRequeste": {
-    "description": "Bad Requeste",
+  "BadRequest": {
+    "description": "Bad Request",
     "content": {
       "application/json": {
         "schema": {

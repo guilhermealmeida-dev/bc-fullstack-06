@@ -42,7 +42,7 @@
         }
       },
       "400": {
-        "description": "Bad Requeste",
+        "description": "Bad Request",
         "content": {
           "application/json": {
             "schema": {

@@ -84,13 +84,13 @@ export async function giveAchievementService(userId: string, achievementName: st
     const existingAchievement = await hasUserAchieved(userId, achievementName);
 
     if (existingAchievement) {
-        throw { status: 500 };
+        return;
     }
 
     const achievement = await findAchievementByName(achievementName);
 
     if (!achievement) {
-        throw { status: 500 };
+        throw createError("achievement inválido", 400);
     }
 
     await assignAchievementToUser(userId, achievement.id);

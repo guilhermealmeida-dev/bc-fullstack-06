@@ -30,7 +30,7 @@
         }
       },
       "400": {
-        "$ref": "../../components/responses.json#/BadRequeste"
+        "$ref": "../../components/responses.json#/BadRequest"
       },
       "409": {
         "description": "Conflict",

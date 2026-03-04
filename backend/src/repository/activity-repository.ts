@@ -184,6 +184,7 @@ export async function findAllActiviesUserCreatorRepository(userId: string) {
             }
         }
     });
+    
     return activities.map(activity => {
         const { ActivityParticipant = [], creatorId, user, activityAddresse, ...activityData } = activity;
 

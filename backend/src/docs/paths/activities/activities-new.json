@@ -1,0 +1,71 @@
+{
+  "post": {
+    "summary": "Criar uma nova atividade",
+    "description": "Endpoint para criar uma nova atividade com upload de imagem.",
+    "tags": ["Activities"],
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "multipart/form-data": {
+          "schema": {
+            "$ref": "../../components/schemas.json#/ActivityCreationSchema"
+          }
+        }
+      }
+    },
+    "responses": {
+      "201": {
+        "description": "Atividade criada com sucesso",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../components/schemas.json#/ActivityResponseSchema"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Erro de requisição",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "../../components/responses.json#/BadRequest"
+                }
+              ]
+            },
+            "examples": {
+              "invalidImageFormat": {
+                "summary": "Formato de imagem inválido",
+                "value": {
+                  "error": "A imagem deve ser um arquivo PNG ou JPG"
+                }
+              },
+              "genericBadRequest": {
+                "summary": "Erro genérico de validação",
+                "value": {
+                  "error": "Informe os campos obrigatórios corretamente"
+                }
+              }
+            }
+          }
+        }
+      },
+      "401": {
+        "$ref": "../../components/responses.json#/Unauthorized"
+      },
+      "403": {
+        "$ref": "../../components/responses.json#/Forbidden"
+      },
+      "500": {
+        "$ref": "../../components/responses.json#/InternalServerError"
+      }
+    }
+  }
+}
