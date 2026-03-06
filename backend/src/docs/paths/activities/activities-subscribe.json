@@ -1,0 +1,65 @@
+{
+  "post": {
+    "summary": "Inscrever-se em uma atividade",
+    "description": "Endpoint para inscrever-se em uma atividade.",
+    "tags": ["Activities"],
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "description": "Id da atividade",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "responses": {
+      "201": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../../components/schemas.json#/SubscriptionSchema"
+            }
+          }
+        }
+      },
+      "401": {
+        "$ref": "../../components/responses.json#/Unauthorized"
+      },
+      "403": {
+        "$ref": "../../components/responses.json#/Forbidden"
+      },
+      "404": {
+        "description": "NotFound",
+        "content": {
+          "application/json": {
+            "example": {
+              "error": "Atividade não encontrada"
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict",
+        "content": {
+          "application/json": {
+            "example": {
+              "error": "Você já se registrou nesta atividade"
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../components/responses.json#/InternalServerError"
+      }
+    }
+  }
+}

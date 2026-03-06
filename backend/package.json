@@ -9,6 +9,7 @@
     "seed": "ts-node src/init-db.ts",
     "generate-doc": "ts-node src/generate-doc.ts",
     "migrate": "npx prisma migrate dev --config=./src/prisma.config.ts",
+    "generate": "npx prisma generate --config=./src/prisma.config.ts",
     "reset":"npx prisma migrate reset --config=./src/prisma.config.ts",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"

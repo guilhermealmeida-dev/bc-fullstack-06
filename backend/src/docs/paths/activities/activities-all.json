@@ -55,6 +55,27 @@
           }
         }
       },
+      "400": {
+        "description": "BadRequest",
+        "content": {
+          "application/json": {
+            "examples": {
+              "activityFinished": {
+                "summary": "Atividade concluída",
+                "value": {
+                  "error": "Não é possível se inscrever em uma atividade concluída."
+                }
+              },
+              "creatorCannotRegister": {
+                "summary": "Criador tentando se inscrever",
+                "value": {
+                  "error": "O criador da atividade não pode se inscrever."
+                }
+              }
+            }
+          }
+        }
+      },
       "401": {
         "$ref": "../../components/responses.json#/Unauthorized"
       },

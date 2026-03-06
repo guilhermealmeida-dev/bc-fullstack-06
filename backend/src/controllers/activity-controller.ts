@@ -237,7 +237,7 @@ export function activityController(server: Express) {
             const id = request.params.id;
             const userId = request.payload?.id as string;
             const subscribe = await registerUserInActivityService(userId, id);
-            response.status(200).json(subscribe);
+            response.status(201).json(subscribe);
         } catch (error) {
             next(error);
         }

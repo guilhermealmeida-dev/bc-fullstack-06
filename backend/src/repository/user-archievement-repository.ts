@@ -1,4 +1,5 @@
 import {prisma as prismaClient} from "../prisma/prisma-client";
+import { Archievement } from "../types/achievement/archievement";
 
 export async function assignAchievementToUser(userId: string, achievementId: string) {
     return await prismaClient.userArchievement.create({
@@ -9,15 +10,21 @@ export async function assignAchievementToUser(userId: string, achievementId: str
     });
 }
 
-export async function hasUserAchieved(userId: string, achievementName: string): Promise<boolean> {
-    const existingAchievement = await prismaClient.userArchievement.findFirst({
-        where: {
-            userId: userId,
-            archievement: {
-                name: achievementName
-            }
-        }
-    });
+export async function findArchivementUser(
+  userId: string, 
+  achievementName: string
+): Promise<Archievement | null> {
+  const existingAchievement = await prismaClient.userArchievement.findFirst({
+    where: {
+      userId,
+      archievement: {
+        name: achievementName
+      }
+    },
+    select: {
+      archievement: true
+    }
+  });
 
-    return existingAchievement ? true : false;
+  return existingAchievement ? existingAchievement.archievement : null;
 }

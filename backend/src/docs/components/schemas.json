@@ -395,28 +395,34 @@
       "id": {
         "type": "string",
         "format": "uuid",
-        "description": "Identificador único"
+        "description": "Identificador único do participante",
+        "example": "550e8400-e29b-41d4-a716-446655440000"
       },
       "userId": {
         "type": "string",
         "format": "uuid",
-        "description": "Identificador único do usuário"
+        "description": "Identificador único do usuário",
+        "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
       },
       "name": {
         "type": "string",
-        "description": "Nome da do usuário"
+        "description": "Nome do usuário",
+        "example": "Carlos Silva"
       },
       "avatar": {
         "type": "string",
-        "description": "Avatar do usuário"
+        "description": "URL do avatar do usuário",
+        "example": "https://example.com/avatar.png"
       },
       "subscriptionStatus": {
-        "type": "string",
-        "description": "Status de inscrilção do usuário"
+        "type": "boolean",
+        "description": "Status de inscrição do usuário",
+        "example": true
       },
       "confirmedAt": {
         "type": "string",
         "format": "date-time",
+        "description": "Data e hora de confirmação da inscrição",
         "example": "2025-03-20T18:00:01.403Z"
       }
     },
@@ -429,7 +435,6 @@
       "confirmedAt"
     ]
   },
-
   "ActivityCreationSchema": {
     "type": "object",
     "required": [
@@ -475,5 +480,48 @@
         "description": "Define se a atividade é privada (true) ou pública (false)"
       }
     }
+  },
+
+  "SubscriptionSchema": {
+    "type": "object",
+    "title": "SubscriptionSchema",
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Identificador único da inscrição",
+        "example": "550e8400-e29b-41d4-a716-446655440000"
+      },
+      "activityId": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Identificador da atividade",
+        "example": "123e4567-e89b-12d3-a456-426614174000"
+      },
+      "userId": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Identificador do usuário",
+        "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+      },
+      "subscriptionStatus": {
+        "type": "boolean",
+        "description": "Status de inscrição do usuário",
+        "example": true
+      },
+      "confirmedAt": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Data e hora de confirmação da inscrição",
+        "example": "2025-03-20T18:00:01.403Z"
+      }
+    },
+    "required": [
+      "id",
+      "activityId",
+      "userId",
+      "subscriptionStatus",
+      "confirmedAt"
+    ]
   }
 }

@@ -3,10 +3,10 @@ import { createActivityParticipant, findActivityParticipant } from "../repositor
 import { checkActivityExistsRepository, countActivitiesRepository, createActivityRepository, findActivityByIdRepository, findAllActiviesUserCreatorPaginatedRepository, findAllActiviesUserCreatorRepository, findActiviesUserParticipantPaginatedRepository, findAllActivitiesFilterTypeOrderByRepository, findActivitiesFilterTypeOrderByPaginatedRepository, getParticipantsActivitityRepository, findAllActiviesUserParticipantRepository } from "../repository/activity-repository";
 import { getActivityTypes } from "../repository/activity-type-repository";
 import activityCreation from "../types/activity/activity-creation";
-import { AppError } from "../types/error/app-error";
 import { giveAchievementService, giveXpService } from "./user-service";
 import { getPreferencesByIdRepository } from "../repository/preference-repository";
 import { createError } from "../utils/create-error";
+import { OptionsAchievements } from "../types/achievement/archievement";
 
 export async function getActivityTypesService() {
     return await getActivityTypes();
@@ -175,10 +175,10 @@ export async function getActiviesUserParticipantPaginatedService(userId: string,
 
 }
 
-export async function getAllActiviesUserParticipantService(userId:string) {
-    const activities= await findAllActiviesUserParticipantRepository(userId);
-    
-     return activities.map(activity => {
+export async function getAllActiviesUserParticipantService(userId: string) {
+    const activities = await findAllActiviesUserParticipantRepository(userId);
+
+    return activities.map(activity => {
         const { ActivityParticipant = [], confirmationCode, creatorId, user, activityAddresse, ...activityData } = activity;
 
         const userSubscriptionStatus = ActivityParticipant.some(participant => participant.userId === userId);
@@ -202,11 +202,11 @@ export async function getParticipantsActivyService(activityId: string) {
     const activityExists = await checkActivityExistsRepository(activityId);
 
     if (!activityExists) {
-        throw createError("Atividade não encontrada.",404);
+        throw createError("Atividade não encontrada.", 404);
     }
     const participants = await getParticipantsActivitityRepository(activityId);
 
-    return participants.map(participant=>{
+    return participants.map(participant => {
         return {
             id: participant.id,
             userId: participant.user.id,
@@ -223,63 +223,57 @@ export async function createActivityService(activity: activityCreation) {
 
     const activities = await findAllActiviesUserCreatorRepository(activity.creatorId);
     if (activities.length === 0) {
-        await giveAchievementService(activity.creatorId, "Primeira Atividade Criada", 50);
+        await giveAchievementService(activity.creatorId, OptionsAchievements.FIRST_ACTIVITY_CREATED, 50);
     }
 
     await giveXpService(activity.creatorId, 20);
 
-    // return {
-    //     id: activityData.id,
-    //     title: activityData.title,
-    //     description: activityData.description,
-    //     typeId: activityData.typeId,
-    //     image: activityData.image,
-    //     address: {
-    //         latitude: activityData.activityAddresse?.latitude,
-    //         longitude: activityData.activityAddresse?.longitude
-    //     },
-    //     sheduledDate: activityData.sheduledDate,
-    //     createdAt: activityData.createdAt,
-    //     completedAt: activityData.completedAt,
-    //     private: activityData.private,
-    //     creator: activityData.user
-    //         ? {
-    //             id: activityData.user.id,
-    //             name: activityData.user.name,
-    //             avatar: activityData.user.avatar
-    //         }
-    //         : null,
-    // };
-
-    return activityData;
+    return {
+        id: activityData.id,
+        title: activityData.title,
+        description: activityData.description,
+        typeId: activityData.typeId,
+        image: activityData.image,
+        address: {
+            latitude: activityData.activityAddresse?.latitude,
+            longitude: activityData.activityAddresse?.longitude
+        },
+        sheduledDate: activityData.sheduledDate,
+        createdAt: activityData.createdAt,
+        completedAt: activityData.completedAt,
+        private: activityData.private,
+        creator: activityData.user
+            ? {
+                id: activityData.user.id,
+                name: activityData.user.name,
+                avatar: activityData.user.avatar
+            }
+            : null,
+    };
 }
 
 export async function registerUserInActivityService(userId: string, activityId: string) {
     const activity = await findActivityByIdRepository(activityId);
     if (!activity) {
-        const erro: AppError = { message: "Atividade não encontrada.", status: 404 };
-        throw erro;
+        throw createError("Atividade não encontrada.", 404);
     }
 
     if (activity.creatorId === userId) {
-        const erro: AppError = { message: "O criador da atividade não pode se inscrever.", status: 400 };
-        throw erro;
+        throw createError("O criador da atividade não pode se inscrever.", 400);
     }
 
     const existingParticipant = await findActivityParticipant(userId, activityId);
     if (existingParticipant) {
-        const erro: AppError = { message: "Você já se registrou nesta atividade.", status: 400 };
-        throw erro;
+        throw createError("Você já se registrou nesta atividade.", 409);
     }
 
     if (activity.completedAt) {
-        const erro: AppError = { message: "Não é possível se inscrever em uma atividade concluída.", status: 400 };
-        throw erro;
+        throw createError("Não é possível se inscrever em uma atividade concluída.", 400);
     }
-    const userRegistrations = await findActivityParticipant(userId, activityId);
 
+    const userRegistrations = await findActivityParticipant(userId, activityId);
     if (!userRegistrations) {
-        await giveAchievementService(userId, "Primeira Inscrição", 50);
+        await giveAchievementService(userId, OptionsAchievements.FIRST_INSCRIPTION, 50);
     }
 
     // Adiciona XP ao usuário

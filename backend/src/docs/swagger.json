@@ -60,6 +60,9 @@
     },
     "/activities/new": {
       "$ref": "./paths/activities/activities-new.json"
+    },
+    "/activities/{id}/subscribe": {
+      "$ref": "./paths/activities/activities-subscribe.json"
     }
   },
   "components": {

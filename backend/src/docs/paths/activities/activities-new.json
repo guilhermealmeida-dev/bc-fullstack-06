@@ -1,7 +1,7 @@
 {
   "post": {
-    "summary": "Criar uma nova atividade",
-    "description": "Endpoint para criar uma nova atividade com upload de imagem.",
+    "summary": "Criar uma atividade",
+    "description": "Endpoint para criar atividade.",
     "tags": ["Activities"],
     "security": [
       {
@@ -20,7 +20,7 @@
     },
     "responses": {
       "201": {
-        "description": "Atividade criada com sucesso",
+        "description": "OK",
         "content": {
           "application/json": {
             "schema": {
@@ -30,7 +30,7 @@
         }
       },
       "400": {
-        "description": "Erro de requisição",
+        "description": "Bad Request",
         "content": {
           "application/json": {
             "schema": {

@@ -3,9 +3,10 @@ import userDataUpdate from "../types/user/user-data-update";
 import bcrypt from "bcryptjs";
 import { createPreferences, deletePreferencesById, getPreferencesByIdRepository } from "../repository/preference-repository";
 import { findValidActivityTypes } from "../repository/activity-type-repository";
-import { assignAchievementToUser, hasUserAchieved } from "../repository/user-archievement-repository";
+import { assignAchievementToUser, findArchivementUser } from "../repository/user-archievement-repository";
 import { findAchievementByName } from "../repository/archievement-repository";
 import { createError } from "../utils/create-error";
+import { OptionsAchievements } from "../types/achievement/archievement";
 
 export async function getUser(id: string) {
 
@@ -80,14 +81,14 @@ export async function giveXpService(userId: string, xpToAdd: number) {
     return updatedUser;
 }
 
-export async function giveAchievementService(userId: string, achievementName: string, xp: number) {
-    const existingAchievement = await hasUserAchieved(userId, achievementName);
+export async function giveAchievementService(userId: string, optionAchievement: OptionsAchievements, xp: number) {
+    const existingAchievement = await findArchivementUser(userId, optionAchievement);
 
     if (existingAchievement) {
         return;
     }
 
-    const achievement = await findAchievementByName(achievementName);
+    const achievement = await findAchievementByName(optionAchievement);
 
     if (!achievement) {
         throw createError("achievement inválido", 400);
