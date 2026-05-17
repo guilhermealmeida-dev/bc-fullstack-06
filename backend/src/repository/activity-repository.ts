@@ -41,8 +41,7 @@ export async function findActivitiesFilterTypeOrderByPaginatedRepository(
                 select: { id: true, name: true, avatar: true }
             },
             ActivityParticipant: {
-                where: { aproved: true },
-                select: { userId: true }
+                select: { aproved: true, confirmedAt:true},
             }
         }
     });
@@ -88,8 +87,8 @@ export async function findAllActivitiesFilterTypeOrderByRepository(
                 select: { id: true, name: true, avatar: true }
             },
             ActivityParticipant: {
-                where: { aproved: true },
-                select: { userId: true }
+                where: { userId: userId },
+                select: {aproved:true }
             }
         }
     });
@@ -175,11 +174,9 @@ export async function findAllActiviesUserCreatorRepository(userId: string) {
                 }
             },
             ActivityParticipant: {
-                where: {
-                    aproved: true,
-                },
                 select: {
-                    userId: true
+                    aproved:true,
+                    confirmedAt:true
                 }
             }
         }
@@ -225,11 +222,12 @@ export async function findActiviesUserParticipantPaginatedRepository(userId: str
                 }
             },
             ActivityParticipant: {
-                where: {
-                    aproved: true,
+                where:{
+                    userId:userId
                 },
                 select: {
                     userId: true,
+                    aproved: true
                 }
             }
         }
@@ -261,10 +259,11 @@ export async function findAllActiviesUserParticipantRepository(userId: string) {
             },
             ActivityParticipant: {
                 where: {
-                    aproved: true,
+                    userId: userId,
                 },
                 select: {
-                    userId: true,
+                    aproved:true,
+                    confirmedAt:true
                 }
             }
         }

@@ -7,6 +7,7 @@ import { giveAchievementService, giveXpService } from "./user-service";
 import { getPreferencesByIdRepository } from "../repository/preference-repository";
 import { createError } from "../utils/create-error";
 import { OptionsAchievements } from "../types/achievement/archievement";
+import { formatSubscriptionStatus } from "../utils/format-subscription-status";
 
 export async function getActivityTypesService() {
     return await getActivityTypes();
@@ -76,7 +77,7 @@ export async function getActivitiesPaginatedFilterOrderByService(
     const activitiesMap = activities.map(activity => {
         const { ActivityParticipant = [], confirmationCode, creatorId, user, activityAddresse, deletedAt, completedAt, ...activityData } = activity;
 
-        const userSubscriptionStatus = ActivityParticipant.some(participant => participant.userId === userId);
+        const userSubscriptionStatus = formatSubscriptionStatus(ActivityParticipant[0]?.aproved);
 
         const participantCount = ActivityParticipant.length;
 
@@ -122,7 +123,8 @@ export async function getActivitiesAllFilterTypeOrderByService(userId: string, t
 
         const { ActivityParticipant = [], confirmationCode, creatorId, user, activityAddresse, deletedAt, completedAt, ...activityData } = activity;
 
-        const userSubscriptionStatus = ActivityParticipant.some(participant => participant.userId === userId);
+        const userSubscriptionStatus = formatSubscriptionStatus(ActivityParticipant[0]?.aproved);
+
 
         const participantCount = ActivityParticipant.length;
 
@@ -156,11 +158,11 @@ export async function getActiviesUserParticipantPaginatedService(userId: string,
 
     const activities = await findActiviesUserParticipantPaginatedRepository(userId, pageSize, page);
     return activities.map(activity => {
-        const { ActivityParticipant = [], confirmationCode, creatorId, user, activityAddresse, ...activityData } = activity;
+        const { ActivityParticipant: ActivityParticipants = [], confirmationCode, creatorId, user, activityAddresse, ...activityData } = activity;
 
-        const userSubscriptionStatus = ActivityParticipant.some(participant => participant.userId === userId);
+        const userSubscriptionStatus = formatSubscriptionStatus(ActivityParticipants[0]?.aproved);
 
-        const participantCount = ActivityParticipant.length;
+        const participantCount = ActivityParticipants.length;
 
         return {
             ...activityData,
@@ -181,7 +183,7 @@ export async function getAllActiviesUserParticipantService(userId: string) {
     return activities.map(activity => {
         const { ActivityParticipant = [], confirmationCode, creatorId, user, activityAddresse, ...activityData } = activity;
 
-        const userSubscriptionStatus = ActivityParticipant.some(participant => participant.userId === userId);
+        const userSubscriptionStatus = formatSubscriptionStatus(ActivityParticipant[0].aproved);
 
         const participantCount = ActivityParticipant.length;
 
@@ -212,7 +214,7 @@ export async function getParticipantsActivyService(activityId: string) {
             userId: participant.user.id,
             name: participant.user.name,
             avatar: participant.user.avatar,
-            subscriptionStatus: participant.aproved,
+            subscriptionStatus: formatSubscriptionStatus(participant.aproved),
             confirmedAt: participant.confirmedAt
         }
     });
@@ -271,14 +273,21 @@ export async function registerUserInActivityService(userId: string, activityId: 
         throw createError("Não é possível se inscrever em uma atividade concluída.", 400);
     }
 
-    const userRegistrations = await findActivityParticipant(userId, activityId);
+    const userRegistrations = await getAllActiviesUserParticipantService(userId);
     if (!userRegistrations) {
         await giveAchievementService(userId, OptionsAchievements.FIRST_INSCRIPTION, 50);
+    } else {
+        // Adiciona XP ao usuário
+        await giveXpService(userId, 20);
     }
 
-    // Adiciona XP ao usuário
-    await giveXpService(userId, 20);
+    let subscribeDate: Date | null = new Date();
+    let aproved: boolean = true;
+    if (activity.private) {
+        subscribeDate = null;
+        aproved = false;
+    }
 
-    return await createActivityParticipant(userId, activityId);
+    return await createActivityParticipant(userId, activityId, aproved, subscribeDate);
 }
 
