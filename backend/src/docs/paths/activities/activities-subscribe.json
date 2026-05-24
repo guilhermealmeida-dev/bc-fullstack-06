@@ -51,8 +51,33 @@
         "description": "Conflict",
         "content": {
           "application/json": {
-            "example": {
-              "error": "Você já se registrou nesta atividade"
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": {
+              "creatorCannotJoin": {
+                "summary": "Criador tentando se inscrever",
+                "value": {
+                  "error": "O criador da atividade não pode se inscrever."
+                }
+              },
+              "alreadyRegistered": {
+                "summary": "Usuário já registrado",
+                "value": {
+                  "error": "Você já se registrou nesta atividade."
+                }
+              },
+              "activityCompleted": {
+                "summary": "Atividade concluída",
+                "value": {
+                  "error": "Não é possível se inscrever em uma atividade concluída."
+                }
+              }
             }
           }
         }

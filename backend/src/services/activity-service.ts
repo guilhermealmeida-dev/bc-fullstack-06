@@ -261,7 +261,7 @@ export async function registerUserInActivityService(userId: string, activityId: 
     }
 
     if (activity.creatorId === userId) {
-        throw createError("O criador da atividade não pode se inscrever.", 400);
+        throw createError("O criador da atividade não pode se inscrever.", 409);
     }
 
     const existingParticipant = await findActivityParticipant(userId, activityId);
@@ -270,7 +270,7 @@ export async function registerUserInActivityService(userId: string, activityId: 
     }
 
     if (activity.completedAt) {
-        throw createError("Não é possível se inscrever em uma atividade concluída.", 400);
+        throw createError("Não é possível se inscrever em uma atividade concluída.", 409);
     }
 
     const userRegistrations = await getAllActiviesUserParticipantService(userId);
