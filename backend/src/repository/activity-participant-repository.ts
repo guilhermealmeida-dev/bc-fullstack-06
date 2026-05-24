@@ -9,7 +9,6 @@ export async function findActivityParticipant(userId: string, activityId: string
     });
 }
 
-
 export async function createActivityParticipant(userId: string, activityId: string, aproved: boolean, confirmedAt: Date | null) {
     return await prismaClient.activityParticipant.create({
         data: {
@@ -17,6 +16,14 @@ export async function createActivityParticipant(userId: string, activityId: stri
             activityId,
             aproved: aproved,
             confirmedAt: confirmedAt
+        }
+    });
+}
+
+export async function deleteActivityParticipant(id:string) {
+    return await prismaClient.activityParticipant.delete({
+        where:{
+            id:id
         }
     });
 }

@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { createActivityParticipant, findActivityParticipant } from "../repository/activity-participant-repository";
+import { createActivityParticipant, deleteActivityParticipant, findActivityParticipant } from "../repository/activity-participant-repository";
 import { checkActivityExistsRepository, countActivitiesRepository, createActivityRepository, findActivityByIdRepository, findAllActiviesUserCreatorPaginatedRepository, findAllActiviesUserCreatorRepository, findActiviesUserParticipantPaginatedRepository, findAllActivitiesFilterTypeOrderByRepository, findActivitiesFilterTypeOrderByPaginatedRepository, getParticipantsActivitityRepository, findAllActiviesUserParticipantRepository } from "../repository/activity-repository";
 import { getActivityTypes } from "../repository/activity-type-repository";
 import activityCreation from "../types/activity/activity-creation";
@@ -281,13 +281,27 @@ export async function registerUserInActivityService(userId: string, activityId: 
         await giveXpService(userId, 20);
     }
 
-    let subscribeDate: Date | null = new Date();
-    let aproved: boolean = true;
-    if (activity.private) {
-        subscribeDate = null;
-        aproved = false;
+    let confirmedAt: Date | null = activity.private ? null : new Date();
+    let aproved: boolean = activity.private ? false : true;
+
+    return await createActivityParticipant(userId, activityId, aproved, confirmedAt);
+}
+
+//Carcelar inscrição do usuário 
+export async function removeSubscriptionInActivityService(userId: string, activityId: string) {
+    const activity = await findActivityByIdRepository(activityId);
+    if (!activity) {
+        throw createError("Atividade não encontrada.", 404);
     }
 
-    return await createActivityParticipant(userId, activityId, aproved, subscribeDate);
+    const activityParticipant = await findActivityParticipant(userId, activityId);
+    if (!activityParticipant) {
+        throw createError("Você não se inscreveu nesta atividade.", 400);
+    }
+    if (activityParticipant.confirmedAt) {
+        throw createError("Não é possível cancelar sua inscrição, pois sua presença já foi confirmada.", 409);
+    }
+
+    await deleteActivityParticipant(activityParticipant.id);
 }
 

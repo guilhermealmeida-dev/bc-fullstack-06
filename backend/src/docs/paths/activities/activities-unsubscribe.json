@@ -1,0 +1,91 @@
+{
+  "delete": {
+    "summary": "Cancelar a inscrição do usuário em uma atividade",
+    "description": "Endpoint para cancelar a inscrição do usuario logado, em uma atividade.",
+    "tags": ["Activities"],
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "description": "Id da atividade",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "responses": {
+      "201": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "title": "UnSubscriptionSchema",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Menssagem de sucesso!",
+                  "example": "Participação cancelada com sucesso!"
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "title": "UnSubscription-BadRequest",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Menssagem de erro, por não está inscrito na atividade!",
+                  "example": "Você não se inscreveu nesta atividade."
+                }
+              }
+            }
+          }
+        }
+      },
+      "401": {
+        "$ref": "../../components/responses.json#/Unauthorized"
+      },
+      "403": {
+        "$ref": "../../components/responses.json#/Forbidden"
+      },
+      "404": {
+        "description": "NotFound",
+        "content": {
+          "application/json": {
+            "example": {
+              "error": "Atividade não encontrada."
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict",
+        "content": {
+          "application/json": {
+            "example": {
+              "error": "Não é possível cancelar sua inscrição, pois sua presença já foi confirmada."
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../components/responses.json#/InternalServerError"
+      }
+    }
+  }
+}
