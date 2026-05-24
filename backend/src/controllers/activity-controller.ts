@@ -1,6 +1,6 @@
 import { Express, Router, NextFunction } from 'express';
 import authGuard from '../middlewares/auth-guard';
-import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getAllActiviesUserCreatorPaginatedService, getActiviesUserParticipantPaginatedService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService, getAllActiviesUserCreatorService, getAllActiviesUserParticipantService, removeSubscriptionInActivityService } from '../services/activity-service';
+import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getAllActiviesUserCreatorPaginatedService, getActiviesUserParticipantPaginatedService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService, getAllActiviesUserCreatorService, getAllActiviesUserParticipantService, removeSubscriptionInActivityService, removeActivityService } from '../services/activity-service';
 import activityCreation from '../types/activity/activity-creation';
 import imageValidation from '../validations/image-validation';
 import { uploadImage } from '../services/s3-service';
@@ -270,8 +270,15 @@ export function activityController(server: Express) {
         }
     });
 
-    router.put("/{id}/delete", function (request, response, next: NextFunction) {
-
+    router.delete("/:id/delete", async function (request, response, next: NextFunction) {
+        try {
+            const activityId = request.params.id;
+            const userId = request.payload?.id as string;
+            await removeActivityService(activityId, userId);
+            response.status(200).json({ message: "Atividade excluída com sucesso." });
+        } catch (error) {
+            next(error);
+        }
     });
 
     server.use("/activities", router);

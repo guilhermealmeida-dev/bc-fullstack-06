@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { createActivityParticipant, deleteActivityParticipant, findActivityParticipant } from "../repository/activity-participant-repository";
-import { checkActivityExistsRepository, countActivitiesRepository, createActivityRepository, findActivityByIdRepository, findAllActiviesUserCreatorPaginatedRepository, findAllActiviesUserCreatorRepository, findActiviesUserParticipantPaginatedRepository, findAllActivitiesFilterTypeOrderByRepository, findActivitiesFilterTypeOrderByPaginatedRepository, getParticipantsActivitityRepository, findAllActiviesUserParticipantRepository } from "../repository/activity-repository";
+import { checkActivityExistsRepository, countActivitiesRepository, createActivityRepository, findActivityByIdRepository, findAllActiviesUserCreatorPaginatedRepository, findAllActiviesUserCreatorRepository, findActiviesUserParticipantPaginatedRepository, findAllActivitiesFilterTypeOrderByRepository, findActivitiesFilterTypeOrderByPaginatedRepository, getParticipantsActivitityRepository, findAllActiviesUserParticipantRepository, deleteActivityByIdRepository } from "../repository/activity-repository";
 import { getActivityTypes } from "../repository/activity-type-repository";
 import activityCreation from "../types/activity/activity-creation";
 import { giveAchievementService, giveXpService } from "./user-service";
@@ -254,6 +254,19 @@ export async function createActivityService(activity: activityCreation) {
     };
 }
 
+export async function removeActivityService(activityId: string, userId: string){
+    const activity = await findActivityByIdRepository(activityId);
+    if(!activity || activity.deletedAt){
+        throw createError("Atividade não encontrada!",404);
+    }
+
+    if(activity.creatorId!==userId){
+        throw createError("Apenas o criador da atividade pode exclui-la.",409);
+    }
+
+    await deleteActivityByIdRepository(activityId);
+}
+
 export async function registerUserInActivityService(userId: string, activityId: string) {
     const activity = await findActivityByIdRepository(activityId);
     if (!activity) {
@@ -261,7 +274,7 @@ export async function registerUserInActivityService(userId: string, activityId: 
     }
 
     if (activity.creatorId === userId) {
-        throw createError("O criador da atividade não pode se inscrever.", 409);
+        throw createError("O criador da atividade não pode se inscrever.", 400);
     }
 
     const existingParticipant = await findActivityParticipant(userId, activityId);
@@ -270,7 +283,7 @@ export async function registerUserInActivityService(userId: string, activityId: 
     }
 
     if (activity.completedAt) {
-        throw createError("Não é possível se inscrever em uma atividade concluída.", 409);
+        throw createError("Não é possível se inscrever em uma atividade concluída.", 400);
     }
 
     const userRegistrations = await getAllActiviesUserParticipantService(userId);
@@ -304,4 +317,3 @@ export async function removeSubscriptionInActivityService(userId: string, activi
 
     await deleteActivityParticipant(activityParticipant.id);
 }
-

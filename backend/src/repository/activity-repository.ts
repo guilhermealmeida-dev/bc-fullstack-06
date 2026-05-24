@@ -41,7 +41,7 @@ export async function findActivitiesFilterTypeOrderByPaginatedRepository(
                 select: { id: true, name: true, avatar: true }
             },
             ActivityParticipant: {
-                select: { aproved: true, confirmedAt:true},
+                select: { aproved: true, confirmedAt: true },
             }
         }
     });
@@ -88,7 +88,7 @@ export async function findAllActivitiesFilterTypeOrderByRepository(
             },
             ActivityParticipant: {
                 where: { userId: userId },
-                select: {aproved:true }
+                select: { aproved: true }
             }
         }
     });
@@ -103,7 +103,6 @@ export async function findAllActivitiesFilterTypeOrderByRepository(
 
     return activities;
 }
-
 
 export async function countActivitiesRepository(where: Prisma.ActivityWhereInput) {
     return await prismaClient.activity.count({ where });
@@ -175,13 +174,13 @@ export async function findAllActiviesUserCreatorRepository(userId: string) {
             },
             ActivityParticipant: {
                 select: {
-                    aproved:true,
-                    confirmedAt:true
+                    aproved: true,
+                    confirmedAt: true
                 }
             }
         }
     });
-    
+
     return activities.map(activity => {
         const { ActivityParticipant = [], creatorId, user, activityAddresse, ...activityData } = activity;
 
@@ -222,8 +221,8 @@ export async function findActiviesUserParticipantPaginatedRepository(userId: str
                 }
             },
             ActivityParticipant: {
-                where:{
-                    userId:userId
+                where: {
+                    userId: userId
                 },
                 select: {
                     userId: true,
@@ -243,8 +242,8 @@ export async function findAllActiviesUserParticipantRepository(userId: string) {
                 }
             }
         },
-        include:{
-             activityAddresse: {
+        include: {
+            activityAddresse: {
                 select: {
                     latitude: true,
                     longitude: true,
@@ -262,8 +261,8 @@ export async function findAllActiviesUserParticipantRepository(userId: string) {
                     userId: userId,
                 },
                 select: {
-                    aproved:true,
-                    confirmedAt:true
+                    aproved: true,
+                    confirmedAt: true
                 }
             }
         }
@@ -277,7 +276,7 @@ export async function getParticipantsActivitityRepository(activityId: string) {
             activityId: activityId,
         },
         select: {
-            
+
             id: true,
             user: {
                 select: {
@@ -324,6 +323,19 @@ export async function createActivityRepository(activity: activityCreation) {
     });
 
     return createdActivity;
+}
+
+export async function deleteActivityByIdRepository(activityId: string) {
+    await prismaClient.activity.update(
+        {
+            where: {
+                id: activityId
+            },
+            data: {
+                deletedAt: new Date()
+            }
+        }
+    );
 }
 
 export async function findActivityByIdRepository(activityId: string) {

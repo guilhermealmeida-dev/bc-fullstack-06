@@ -66,6 +66,9 @@
     },
     "/activities/{id}/unsubscribe":{
      "$ref": "./paths/activities/activities-unsubscribe.json" 
+    },
+    "/activities/{id}/delete":{
+     "$ref": "./paths/activities/activities-delete.json" 
     }
   },
   "components": {

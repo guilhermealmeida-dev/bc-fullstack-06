@@ -1,0 +1,83 @@
+{
+  "delete": {
+    "summary": "Excluir uma atividade",
+    "description": "Endpoint para excluir uma atividade criada pelo usuário logado.",
+    "tags": ["Activities"],
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "description": "Id da atividade",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "title": "DeleteActivitySchema",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Mensagem de sucesso!",
+                  "example": "Atividade excluída com sucesso."
+                }
+              }
+            }
+          }
+        }
+      },
+
+      "401": {
+        "$ref": "../../components/responses.json#/Unauthorized"
+      },
+
+      "403": {
+        "$ref": "../../components/responses.json#/Forbidden"
+      },
+
+      "404": {
+        "description": "NotFound",
+        "content": {
+          "application/json": {
+            "example": {
+              "error": "Atividade não encontrada."
+            }
+          }
+        }
+      },
+
+      "409": {
+        "description": "Conflict",
+        "content": {
+          "application/json": {
+            "examples": {
+              "notActivityCreator": {
+                "summary": "Usuário não é o criador da atividade",
+                "value": {
+                  "error": "Apenas o criador da atividade pode excluí-la."
+                }
+              }
+            }
+          }
+        }
+      },
+
+      "500": {
+        "$ref": "../../components/responses.json#/InternalServerError"
+      }
+    }
+  }
+}
