@@ -1,7 +1,7 @@
 import { Express, Router, NextFunction } from 'express';
 import authGuard from '../middlewares/auth-guard';
-import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getAllActiviesUserCreatorPaginatedService, getActiviesUserParticipantPaginatedService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService, getAllActiviesUserCreatorService, getAllActiviesUserParticipantService, removeSubscriptionInActivityService, removeActivityService } from '../services/activity-service';
-import activityCreation from '../types/activity/activity-creation';
+import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getAllActiviesUserCreatorPaginatedService, getActiviesUserParticipantPaginatedService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService, getAllActiviesUserCreatorService, getAllActiviesUserParticipantService, removeSubscriptionInActivityService, removeActivityService, editActivityService } from '../services/activity-service';
+import Activity from '../types/activity/activity-creation';
 import imageValidation from '../validations/image-validation';
 import { uploadImage } from '../services/s3-service';
 import upload from '../utils/multer';
@@ -11,6 +11,10 @@ import { requestBodyValidator } from '../middlewares/request-body-validator';
 import { createActivityValidation } from '../validations/create-activity-validator';
 import { requestFileValidator } from '../middlewares/requeste-file-validator';
 import { generateConfirmationCode } from '../utils/generate-confirmation-code';
+import ActivityUpdate from '../types/activity/activity-update';
+import { UpdateActivityValidation } from '../validations/update-activity-validation';
+import activityAddresse from '../types/activity/activity-addresse';
+import { findActivityTypeById } from '../repository/activity-type-repository';
 
 export function activityController(server: Express) {
     const router = Router();
@@ -209,7 +213,7 @@ export function activityController(server: Express) {
             const confirmationCode = generateConfirmationCode();
             const formattedScheduledDate = new Date(scheduledDate);
 
-            const activityCreation: activityCreation = {
+            const activityCreation: Activity = {
                 title,
                 description,
                 typeId,
@@ -243,8 +247,54 @@ export function activityController(server: Express) {
         }
     });
 
-    router.put("/{id}/update", function (request, response, next: NextFunction) {
+    router.put("/:id/update", upload.single("image"), requestFileValidator(imageValidation), async function (request, response, next: NextFunction) {
+        try {
+            const userId = request.payload?.id as string;
+            const activityId = request.params.id as string;
+            const avatar = request.file;
+            let fileUrl;
+            let formattedScheduledDate;
+            let formattedAddress;
 
+            let {
+                title,
+                description,
+                typeId,
+                sheduledDate,
+                address,
+                private: isPrivate
+            } = request.body;
+
+
+            if (sheduledDate) {
+                formattedScheduledDate = new Date(sheduledDate);
+            }
+
+            if (address) {
+                formattedAddress = formatAddress(address);
+
+            }
+
+            if (avatar) {
+                fileUrl = await uploadImage(avatar, `${userId}_[${activityId}]`, "activity");
+            }
+
+            const activityData: ActivityUpdate = {
+                title,
+                description,
+                typeId,
+                sheduledDate,
+                address,
+                image: fileUrl?.url,
+                private: isPrivate ? isPrivate === "true" : undefined
+            };
+
+            const activity = await editActivityService(activityId, userId, activityData);
+            console.log(activity);
+            response.status(200).json(activity);
+        } catch (error) {
+            next(error);
+        }
     });
 
     router.put("/{id}/conclude", function (request, response, next: NextFunction) {

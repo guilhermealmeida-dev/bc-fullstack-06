@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma as prismaClient } from "../prisma/prisma-client";
-import activityCreation from "../types/activity/activity-creation";
+import ActivityUpdate from "../types/activity/activity-update";
+import ActivityCreation from "../types/activity/activity-creation";
 
 export async function findActivitiesFilterTypeOrderByPaginatedRepository(
     userId: string,
@@ -302,7 +303,7 @@ export async function checkActivityExistsRepository(activityId: string): Promise
     return activity !== null;
 }
 
-export async function createActivityRepository(activity: activityCreation) {
+export async function createActivityRepository(activity: ActivityCreation) {
     const { address, ...activityData } = activity;
 
     const createdActivity = await prismaClient.activity.create({
@@ -342,6 +343,30 @@ export async function findActivityByIdRepository(activityId: string) {
     return await prismaClient.activity.findUnique({
         where: { id: activityId }
     });
+}
+
+//Update activity
+export async function updateActivityRepository(activityId: string, activity: ActivityUpdate) {
+    const { address, ...activityData } = activity;
+    const updatedActivity = await prismaClient.activity.update({
+        where: {
+            id: activityId
+        },
+        data: {
+            ...activityData,
+            activityAddresse: {
+                update: {
+                    latitude: address?.latitude,
+                    longitude: address?.longitude
+                }
+            }
+        },
+        include: {
+            activityAddresse: true
+        }
+    });
+
+    return updatedActivity;
 }
 
 

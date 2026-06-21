@@ -1,6 +1,6 @@
 import activityAddresse from "./activity-addresse";
 
-type activityCreation = {
+type ActivityCreation = {
     title: string,
     description: string,
     typeId: string,
@@ -13,4 +13,4 @@ type activityCreation = {
     creatorId: string,
 };
 
-export default activityCreation;
+export default ActivityCreation;

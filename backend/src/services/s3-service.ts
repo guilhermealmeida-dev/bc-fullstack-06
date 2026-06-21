@@ -4,7 +4,7 @@ import {
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
-import { v4 as uuidv4 } from "uuid";
+import path from "node:path";
 
 const bucketName = process.env.BUCKET_NAME!;
 const s3Endpoint = process.env.S3_ENDPOINT!;
@@ -39,16 +39,17 @@ export async function createBucket() {
 // Upload de imagem
 export async function uploadImage(
   file: Express.Multer.File,
-  userId: string,
+  id: string,
   type: "profile" | "activity"
 ) {
+  const extension = path.extname(file.originalname);
   let filePath: string;
 
   if (type === "profile") {
-    filePath = `profileImages/${userId}/profile.png`; // sobrescreve sempre
+    filePath = `profileImages/${id}/profile..${extension}`;
   } else {
-    const uniqueFileName = `${uuidv4()}-${file.originalname}`;
-    filePath = `activityImages/${userId}/${uniqueFileName}`;
+
+    filePath = `activityImages/${id}/activityImage.${extension}`;
   }
 
   const uploadParams = {
@@ -56,7 +57,7 @@ export async function uploadImage(
     Key: filePath,
     Body: file.buffer,
     ContentType: file.mimetype,
-    Metadata: { uploadedBy: userId },
+    Metadata: { uploadedBy: id },
     ContentDisposition: `inline; filename="${file.originalname}"`,
   };
 

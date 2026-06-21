@@ -18,6 +18,6 @@ const imageValidation = z
     {
       message: "A imagem deve ter no máximo 5MB"
     }
-  );
+  ).nullish();
 
 export default imageValidation;

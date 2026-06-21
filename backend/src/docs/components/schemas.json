@@ -264,6 +264,7 @@
       }
     }
   },
+
   "ActivityResponseSchema": {
     "type": "object",
     "properties": {
@@ -345,12 +346,79 @@
             "type": "string",
             "example": "string"
           }
-        },
-        "required": ["id", "name"]
+        }
       },
       "userSubscriptionStatus": {
         "type": "string",
         "example": "string"
+      }
+    }
+  },
+
+  "ActivityCreatorResponseSchema": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      },
+      "title": {
+        "type": "string",
+        "example": "string"
+      },
+      "description": {
+        "type": "string",
+        "example": "string"
+      },
+      "type": {
+        "type": "string",
+        "example": "string"
+      },
+      "image": {
+        "type": "string",
+        "example": "string"
+      },
+      "confirmationCode": {
+        "type": "string",
+        "example": "string"
+      },
+      "participantCount": {
+        "type": "integer",
+        "example": 0
+      },
+      "address": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "example": 0
+          },
+          "longitude": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": ["latitude", "longitude"]
+      },
+      "scheduledDate": {
+        "type": "string",
+        "format": "date-time",
+        "example": "2025-03-20T18:00:01.403Z"
+      },
+      "createdAt": {
+        "type": "string",
+        "format": "date-time",
+        "example": "2025-03-20T18:00:01.403Z"
+      },
+      "completedAt": {
+        "type": "string",
+        "format": "date-time",
+        "example": "2025-03-20T18:00:01.403Z"
+      },
+      "private": {
+        "type": "boolean",
+        "example": true
       }
     }
   },
@@ -435,17 +503,47 @@
       "confirmedAt"
     ]
   },
+
   "ActivityCreationSchema": {
     "type": "object",
-    "required": [
-      "title",
-      "description",
-      "typeId",
-      "scheduledDate",
-      "private",
-      "image",
-      "address"
-    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "description": "Título da atividade"
+      },
+      "description": {
+        "type": "string",
+        "description": "Descrição da atividade"
+      },
+      "typeId": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Identificador do tipo da atividade"
+      },
+      "address": {
+        "type": "string",
+        "description": "Local da atividade no formato 'latitude,longitude'",
+        "example": "-12.9714,-38.5014"
+      },
+      "image": {
+        "type": "string",
+        "format": "binary",
+        "description": "Arquivo de imagem (PNG ou JPG)."
+      },
+      "scheduledDate": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Data e horário da atividade"
+      },
+      "private": {
+        "type": "boolean",
+        "description": "Define se a atividade é privada (true) ou pública (false)"
+      }
+    }
+  },
+
+  "ActivityUpdateSchema": {
+    "type": "object",
     "properties": {
       "title": {
         "type": "string",

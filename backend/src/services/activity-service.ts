@@ -1,13 +1,14 @@
 import { Prisma } from "@prisma/client";
 import { createActivityParticipant, deleteActivityParticipant, findActivityParticipant } from "../repository/activity-participant-repository";
-import { checkActivityExistsRepository, countActivitiesRepository, createActivityRepository, findActivityByIdRepository, findAllActiviesUserCreatorPaginatedRepository, findAllActiviesUserCreatorRepository, findActiviesUserParticipantPaginatedRepository, findAllActivitiesFilterTypeOrderByRepository, findActivitiesFilterTypeOrderByPaginatedRepository, getParticipantsActivitityRepository, findAllActiviesUserParticipantRepository, deleteActivityByIdRepository } from "../repository/activity-repository";
-import { getActivityTypes } from "../repository/activity-type-repository";
-import activityCreation from "../types/activity/activity-creation";
+import { checkActivityExistsRepository, countActivitiesRepository, createActivityRepository, findActivityByIdRepository, findAllActiviesUserCreatorPaginatedRepository, findAllActiviesUserCreatorRepository, findActiviesUserParticipantPaginatedRepository, findAllActivitiesFilterTypeOrderByRepository, findActivitiesFilterTypeOrderByPaginatedRepository, getParticipantsActivitityRepository, findAllActiviesUserParticipantRepository, deleteActivityByIdRepository, updateActivityRepository } from "../repository/activity-repository";
+import { findActivityTypeById, getActivityTypes } from "../repository/activity-type-repository";
+import Activity from "../types/activity/activity-creation";
 import { giveAchievementService, giveXpService } from "./user-service";
 import { getPreferencesByIdRepository } from "../repository/preference-repository";
 import { createError } from "../utils/create-error";
 import { OptionsAchievements } from "../types/achievement/archievement";
 import { formatSubscriptionStatus } from "../utils/format-subscription-status";
+import ActivityUpdate from "../types/activity/activity-update";
 
 export async function getActivityTypesService() {
     return await getActivityTypes();
@@ -220,7 +221,7 @@ export async function getParticipantsActivyService(activityId: string) {
     });
 }
 
-export async function createActivityService(activity: activityCreation) {
+export async function createActivityService(activity: Activity) {
     const activityData = await createActivityRepository(activity);
 
     const activities = await findAllActiviesUserCreatorRepository(activity.creatorId);
@@ -254,17 +255,39 @@ export async function createActivityService(activity: activityCreation) {
     };
 }
 
-export async function removeActivityService(activityId: string, userId: string){
+export async function removeActivityService(activityId: string, userId: string) {
     const activity = await findActivityByIdRepository(activityId);
-    if(!activity || activity.deletedAt){
-        throw createError("Atividade não encontrada!",404);
+    if (!activity || activity.deletedAt) {
+        throw createError("Atividade não encontrada!", 404);
     }
 
-    if(activity.creatorId!==userId){
-        throw createError("Apenas o criador da atividade pode exclui-la.",409);
+    if (activity.creatorId !== userId) {
+        throw createError("Apenas o criador da atividade pode exclui-la.", 409);
     }
 
     await deleteActivityByIdRepository(activityId);
+}
+
+//Atualizar atividade
+export async function editActivityService(activityId: string, userId: string, activityData: ActivityUpdate) {
+    const activity = await findActivityByIdRepository(activityId);
+
+    if (!activity || activity.deletedAt) {
+        throw createError("Atividade não encontrada!", 404);
+    }
+
+    if (activity.creatorId !== userId) {
+        throw createError("Apenas o criador da atividade pode editala.", 409);
+    }
+
+    if (activity.typeId) {
+        const activityType = await findActivityTypeById(activity.typeId);
+        if (!activityType) {
+            throw createError("Tipo de atividade não existe.", 409);
+        }
+    }
+
+    return await updateActivityRepository(activityId, activityData);
 }
 
 export async function registerUserInActivityService(userId: string, activityId: string) {
