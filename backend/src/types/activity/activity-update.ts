@@ -8,6 +8,7 @@ type ActivityUpdate = {
     image?: string,
     sheduledDate?: Date,
     private?: boolean,
+    completedAt?: Date
 };
 
 export default ActivityUpdate;

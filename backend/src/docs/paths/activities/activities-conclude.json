@@ -1,0 +1,77 @@
+{
+  "put": {
+    "summary": "Concluir uma atividade",
+    "description": "Endpoint para concluir uma atividade.",
+    "tags": ["Activities"],
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "description": "Id da atividade",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "responses": {
+      "201": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "string",
+              "example": "Atividade concluída com sucesso."
+            }
+          }
+        }
+      },
+      "401": {
+        "$ref": "../../components/responses.json#/Unauthorized"
+      },
+      "403": {
+        "$ref": "../../components/responses.json#/Forbidden"
+      },
+      "404": {
+        "description": "NotFound",
+        "content": {
+          "application/json": {
+            "example": {
+              "error": "Atividade não encontrada."
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "Conflict",
+        "content": {
+          "application/json": {
+            "examples": {
+              "notActivityCreator": {
+                "summary": "Usuário não é o criador da atividade",
+                "value": {
+                  "error": "Apenas o criador da atividade pode editar."
+                }
+              },
+              "typeIdInvalid": {
+                "summary": "Typo de atividade inválido",
+                "value": {
+                  "error": "Tipo de atividade não existe."
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../components/responses.json#/InternalServerError"
+      }
+    }
+  }
+}

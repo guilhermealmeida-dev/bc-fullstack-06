@@ -1,6 +1,6 @@
 import { Express, Router, NextFunction } from 'express';
 import authGuard from '../middlewares/auth-guard';
-import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getAllActiviesUserCreatorPaginatedService, getActiviesUserParticipantPaginatedService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService, getAllActiviesUserCreatorService, getAllActiviesUserParticipantService, removeSubscriptionInActivityService, removeActivityService, editActivityService } from '../services/activity-service';
+import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getAllActiviesUserCreatorPaginatedService, getActiviesUserParticipantPaginatedService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService, getAllActiviesUserCreatorService, getAllActiviesUserParticipantService, removeSubscriptionInActivityService, removeActivityService, editActivityService, concludeActivityService } from '../services/activity-service';
 import Activity from '../types/activity/activity-creation';
 import imageValidation from '../validations/image-validation';
 import { uploadImage } from '../services/s3-service';
@@ -290,14 +290,21 @@ export function activityController(server: Express) {
             };
 
             const activity = await editActivityService(activityId, userId, activityData);
-            console.log(activity);
             response.status(200).json(activity);
         } catch (error) {
             next(error);
         }
     });
 
-    router.put("/{id}/conclude", function (request, response, next: NextFunction) {
+    router.put("/:id/conclude", async function (request, response, next: NextFunction) {
+        try {
+            const activityId = request.params.id;
+            const userId = request.payload?.id as string;
+            await concludeActivityService(activityId, userId);
+            response.status(200).send("Atividade concluída com sucesso.");
+        } catch (error) {
+            return next(error);
+        }
 
     });
 

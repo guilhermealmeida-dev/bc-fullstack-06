@@ -340,3 +340,17 @@ export async function removeSubscriptionInActivityService(userId: string, activi
 
     await deleteActivityParticipant(activityParticipant.id);
 }
+
+//Concluir uma atividade
+export async function concludeActivityService(activityId: string, userId: string) {
+    const activity = await findActivityByIdRepository(activityId);
+    if (!activity) {
+        throw createError("Atividade não encontrada.", 404);
+    }
+
+    if (activity.creatorId !== userId) {
+        throw createError("Apenas o criador pode concluí-la.", 403)
+    }
+
+    await updateActivityRepository(activityId, { completedAt: new Date() });
+}

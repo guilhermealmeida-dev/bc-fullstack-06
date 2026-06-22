@@ -67,6 +67,9 @@
     "/activities/{id}/update": {
       "$ref": "./paths/activities/activities-update.json"
     },
+    "/activities/{id}/conclude": {
+      "$ref": "./paths/activities/activities-conclude.json"
+    },
     "/activities/{id}/unsubscribe":{
      "$ref": "./paths/activities/activities-unsubscribe.json" 
     },
