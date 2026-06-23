@@ -70,6 +70,9 @@
     "/activities/{id}/conclude": {
       "$ref": "./paths/activities/activities-conclude.json"
     },
+    "/activities/{id}/approve": {
+      "$ref": "./paths/activities/activities-approve.json"
+    },
     "/activities/{id}/unsubscribe":{
      "$ref": "./paths/activities/activities-unsubscribe.json" 
     },

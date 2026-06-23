@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { createActivityParticipant, deleteActivityParticipant, findActivityParticipant } from "../repository/activity-participant-repository";
+import { createActivityParticipant, deleteActivityParticipant, findActivityParticipant, updateActivityParticipant } from "../repository/activity-participant-repository";
 import { checkActivityExistsRepository, countActivitiesRepository, createActivityRepository, findActivityByIdRepository, findAllActiviesUserCreatorPaginatedRepository, findAllActiviesUserCreatorRepository, findActiviesUserParticipantPaginatedRepository, findAllActivitiesFilterTypeOrderByRepository, findActivitiesFilterTypeOrderByPaginatedRepository, getParticipantsActivitityRepository, findAllActiviesUserParticipantRepository, deleteActivityByIdRepository, updateActivityRepository } from "../repository/activity-repository";
 import { findActivityTypeById, getActivityTypes } from "../repository/activity-type-repository";
 import Activity from "../types/activity/activity-creation";
@@ -353,4 +353,32 @@ export async function concludeActivityService(activityId: string, userId: string
     }
 
     await updateActivityRepository(activityId, { completedAt: new Date() });
+}
+
+//Aprovar uma inscrição
+export async function aproveSubsctiption(userId: string, activityId: string, participantId: string) {
+    const activity = await findActivityByIdRepository(activityId);
+    const activityParticipant = await findActivityParticipant(participantId, activityId);
+
+    //participante se increveu?
+    if (!activityParticipant) {
+        throw createError("Não foi encontrada uma inscrição", 404);
+    }
+
+    //atividade existe?
+    if (!activity || activity.deletedAt) {
+        throw createError("Atividade não encontrada", 404);
+    }
+
+    //é o criador?
+    if (activity.creatorId !== userId) {
+        throw createError("Apenas o criador pode aprovar um participante", 403);
+    }
+
+    //já foi concluida?
+    if (activity.completedAt) {
+        throw createError("A atividade já foi encerrada", 403);
+    }
+
+    await updateActivityParticipant(activityParticipant.id, activityParticipant.aproved ? false : true);
 }

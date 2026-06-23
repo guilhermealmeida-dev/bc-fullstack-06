@@ -1,0 +1,108 @@
+{
+  "put": {
+    "summary": "Aprovar participação em uma atividade",
+    "description": "Endpoint para o criador da atividade aprovar a inscrição de um participante enviado no corpo da requisição.",
+    "tags": ["Activities"],
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "description": "Id da atividade",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "required": ["participantId"],
+            "properties": {
+              "participantId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "ID do participante que terá a inscrição aprovada"
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Participação aprovada com sucesso.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Solicitação de participação aprovada com sucesso."
+                }
+              }
+            }
+          }
+        }
+      },
+      "401": {
+        "$ref": "../../components/responses.json#/Unauthorized"
+      },
+      "403": {
+        "description": "Ação não permitida ou regra de negócio violada",
+        "content": {
+          "application/json": {
+            "examples": {
+              "notCreator": {
+                "summary": "Usuário não é o criador",
+                "value": {
+                  "error": "Apenas o criador pode aprovar um participante"
+                }
+              },
+              "activityCompleted": {
+                "summary": "Atividade já encerrada",
+                "value": {
+                  "error": "A atividade já foi encerrada"
+                }
+              }
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Recurso não encontrado",
+        "content": {
+          "application/json": {
+            "examples": {
+              "subscriptionNotFound": {
+                "summary": "Inscrição não encontrada",
+                "value": {
+                  "error": "Não foi encontrada uma inscrição"
+                }
+              },
+              "activityNotFound": {
+                "summary": "Atividade não encontrada",
+                "value": {
+                  "error": "Atividade não encontrada"
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../components/responses.json#/InternalServerError"
+      }
+    }
+  }
+}

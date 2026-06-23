@@ -20,10 +20,20 @@ export async function createActivityParticipant(userId: string, activityId: stri
     });
 }
 
-export async function deleteActivityParticipant(id:string) {
+export async function deleteActivityParticipant(id: string) {
     return await prismaClient.activityParticipant.delete({
-        where:{
-            id:id
+        where: {
+            id: id
+        }
+    });
+}
+
+export async function updateActivityParticipant(activityParticipantId: string, data: { apoved: boolean, confirmedAt: Date }) {
+    await prismaClient.activityParticipant.update({
+        where: { id: activityParticipantId },
+        data: {
+            aproved: aproved,
+            confirmedAt: new Date()
         }
     });
 }
