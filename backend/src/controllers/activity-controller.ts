@@ -1,6 +1,6 @@
 import { Express, Router, NextFunction } from 'express';
 import authGuard from '../middlewares/auth-guard';
-import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getAllActiviesUserCreatorPaginatedService, getActiviesUserParticipantPaginatedService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService, getAllActiviesUserCreatorService, getAllActiviesUserParticipantService, removeSubscriptionInActivityService, removeActivityService, editActivityService, concludeActivityService, aproveSubsctiption } from '../services/activity-service';
+import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getAllActiviesUserCreatorPaginatedService, getActiviesUserParticipantPaginatedService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService, getAllActiviesUserCreatorService, getAllActiviesUserParticipantService, removeSubscriptionInActivityService, removeActivityService, editActivityService, concludeActivityService, aproveSubsctiption, check_in } from '../services/activity-service';
 import Activity from '../types/activity/activity-creation';
 import imageValidation from '../validations/image-validation';
 import { uploadImage } from '../services/s3-service';
@@ -320,8 +320,16 @@ export function activityController(server: Express) {
         }
     });
 
-    router.put("/{id}/check-in", function (request, response, next: NextFunction) {
-
+    router.put("/:id/check-in", async function (request, response, next: NextFunction) {
+        try {
+            const userId = request.payload?.id as string;
+            const activityId = request.params.id;
+            const { confirmationCode } = request.body;
+            await check_in(userId, activityId, confirmationCode);
+            response.status(200).json({ message: "Participação confirmada com sucesso." });
+        } catch (error) {
+            next(error);
+        }
     });
 
     router.delete("/:id/unsubscribe", async function (request, response, next: NextFunction) {

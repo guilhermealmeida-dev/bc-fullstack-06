@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { createActivityParticipant, deleteActivityParticipant, findActivityParticipant, updateActivityParticipant } from "../repository/activity-participant-repository";
+import { createActivityParticipant, deleteActivityParticipant, findActivityParticipant, updateActivityParticipant, updateConfirmedAtActivityParticipant } from "../repository/activity-participant-repository";
 import { checkActivityExistsRepository, countActivitiesRepository, createActivityRepository, findActivityByIdRepository, findAllActiviesUserCreatorPaginatedRepository, findAllActiviesUserCreatorRepository, findActiviesUserParticipantPaginatedRepository, findAllActivitiesFilterTypeOrderByRepository, findActivitiesFilterTypeOrderByPaginatedRepository, getParticipantsActivitityRepository, findAllActiviesUserParticipantRepository, deleteActivityByIdRepository, updateActivityRepository } from "../repository/activity-repository";
 import { findActivityTypeById, getActivityTypes } from "../repository/activity-type-repository";
 import Activity from "../types/activity/activity-creation";
@@ -381,4 +381,21 @@ export async function aproveSubsctiption(userId: string, activityId: string, par
     }
 
     await updateActivityParticipant(activityParticipant.id, activityParticipant.aproved ? false : true);
+}
+
+// Fazer check-in em uma atividade
+export async function check_in(userId: string, activityId: string, code: string) {
+    const activity = await findActivityByIdRepository(activityId);
+    const subscription = await findActivityParticipant(userId, activityId);
+    console.log(subscription);
+
+    if (!subscription) throw createError("Inscrição não encontrada", 404);
+    if (!activity) throw createError("Atividade não encontrada", 404);
+    if (subscription.confirmedAt) throw createError("Você já confirmou sua participação nesta atividade", 409);
+    if (activity.completedAt) throw createError("Não é possível confirmar presença em uma atividade concluída", 409);
+    if (!subscription.aproved) throw createError("Apenas participantes aprovados na atividade podem fazer check-in", 403);
+   
+    if (code !== activity.confirmationCode) throw createError("Código de confirmação incorreto", 400);
+
+    await updateConfirmedAtActivityParticipant(subscription.id);
 }

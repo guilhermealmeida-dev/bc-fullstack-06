@@ -73,6 +73,9 @@
     "/activities/{id}/approve": {
       "$ref": "./paths/activities/activities-approve.json"
     },
+     "/activities/{id}/check-in": {
+      "$ref": "./paths/activities/activities-check-in.json"
+    },
     "/activities/{id}/unsubscribe":{
      "$ref": "./paths/activities/activities-unsubscribe.json" 
     },

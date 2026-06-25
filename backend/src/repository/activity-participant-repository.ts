@@ -36,3 +36,16 @@ export async function updateActivityParticipant(activityParticipantId: string, a
         }
     });
 }
+
+export async function updateConfirmedAtActivityParticipant(activityParticipantId: string) {
+    await prismaClient.activityParticipant.update(
+        {
+            where: {
+                id: activityParticipantId
+            },
+            data: {
+                confirmedAt: new Date()
+            }
+        }
+    );
+}

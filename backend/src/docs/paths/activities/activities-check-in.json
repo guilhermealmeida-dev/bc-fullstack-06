@@ -1,0 +1,174 @@
+{
+  "put": {
+    "summary": "Realizar check-in em uma atividade",
+    "description": "Confirma a participação do usuário em uma atividade utilizando o código de confirmação fornecido pelo organizador.",
+    "tags": [
+      "Activities"
+    ],
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "description": "ID da atividade onde será realizado o check-in.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "required": [
+              "confirmationCode"
+            ],
+            "properties": {
+              "confirmationCode": {
+                "type": "string",
+                "description": "Código de confirmação enviado pelo organizador da atividade.",
+                "example": "A7B92X"
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Check-in realizado com sucesso.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Participação confirmada com sucesso."
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Dados inválidos enviados na requisição.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": {
+              "invalidCode": {
+                "summary": "Código de confirmação incorreto",
+                "value": {
+                  "error": "Código de confirmação incorreto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "401": {
+        "$ref": "../../components/responses.json#/Unauthorized"
+      },
+      "403": {
+        "description": "Usuário não possui permissão para realizar o check-in.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": {
+              "notApproved": {
+                "summary": "Participante não aprovado",
+                "value": {
+                  "error": "Apenas participantes aprovados na atividade podem fazer check-in"
+                }
+              }
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Recurso não encontrado.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": {
+              "activityNotFound": {
+                "summary": "Atividade inexistente",
+                "value": {
+                  "error": "Atividade não encontrada"
+                }
+              },
+              "subscriptionNotFound": {
+                "summary": "Usuário não inscrito",
+                "value": {
+                  "error": "Inscrição não encontrada"
+                }
+              }
+            }
+          }
+        }
+      },
+      "409": {
+        "description": "A operação não pode ser realizada devido ao estado atual da atividade ou inscrição.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": {
+              "alreadyConfirmed": {
+                "summary": "Check-in já realizado",
+                "value": {
+                  "error": "Você já confirmou sua participação nesta atividade"
+                }
+              },
+              "activityCompleted": {
+                "summary": "Atividade concluída",
+                "value": {
+                  "error": "Não é possível confirmar presença em uma atividade concluída"
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "../../components/responses.json#/InternalServerError"
+      }
+    }
+  }
+}
