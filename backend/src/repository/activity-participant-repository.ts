@@ -28,12 +28,11 @@ export async function deleteActivityParticipant(id: string) {
     });
 }
 
-export async function updateActivityParticipant(activityParticipantId: string, data: { apoved: boolean, confirmedAt: Date }) {
+export async function updateActivityParticipant(activityParticipantId: string, aproved: boolean) {
     await prismaClient.activityParticipant.update({
         where: { id: activityParticipantId },
         data: {
             aproved: aproved,
-            confirmedAt: new Date()
         }
     });
 }
