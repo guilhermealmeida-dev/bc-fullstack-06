@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ZodSchema } from "zod";
 import { createError } from "../utils/create-error";
 
-export function requestFileValidator(schema: ZodSchema) {
+export function requestTypeFileValidator(schema: ZodSchema) {
   return (request: Request, response: Response, next: NextFunction) => {
     if (request.file) {
       const schemaParse = schema.safeParse(request.file);

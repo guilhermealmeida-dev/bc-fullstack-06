@@ -36,41 +36,7 @@ async function main() {
   const userList = await prisma.user.findMany();
   console.log("Usuários criados:", userList.length);
 
-  //
-  // 2) Criar 5 tipos de atividades
-  //
-  const activityTypesData = [
-    {
-      name: "Esportes",
-      description: "Atividades físicas ao ar livre ou em academias",
-      image: "https://picsum.photos/300?e=sports"
-    },
-    {
-      name: "Estudos",
-      description: "Atividades de aprendizado e estudo",
-      image: "https://picsum.photos/300?e=study"
-    },
-    {
-      name: "Trabalho",
-      description: "Reuniões, tarefas e eventos corporativos",
-      image: "https://picsum.photos/300?e=work"
-    },
-    {
-      name: "Lazer",
-      description: "Atividades recreativas, jogos e diversão",
-      image: "https://picsum.photos/300?e=fun"
-    },
-    {
-      name: "Voluntariado",
-      description: "Atividades para ajudar a comunidade",
-      image: "https://picsum.photos/300?e=volunteer"
-    }
-  ];
-
-  await prisma.activityType.createMany({
-    data: activityTypesData
-  });
-
+  
   const types = await prisma.activityType.findMany();
   console.log("Tipos de atividade criados:", types.length);
 

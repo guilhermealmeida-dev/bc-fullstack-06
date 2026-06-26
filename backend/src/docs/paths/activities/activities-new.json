@@ -41,6 +41,12 @@
               ]
             },
             "examples": {
+              "invalidActivityType": {
+                "summary": "Tipo de atividade inexistente",
+                "value": {
+                  "error": "Tipo de atividade não existe"
+                }
+              },
               "invalidImageFormat": {
                 "summary": "Formato de imagem inválido",
                 "value": {

@@ -17,7 +17,6 @@ export async function getUser(id: string) {
     return safeUser;
 }
 
-
 export async function getUserPreferencesService(userId: string) {
     const preferences = (await getPreferencesByIdRepository(userId)).map((preference) => ({
         typeId: preference.id,
@@ -70,12 +69,14 @@ export async function desactiveUserAcaunt(userId: string) {
 export async function giveXpService(userId: string, xpToAdd: number) {
     const user = await findById(userId);
 
-    const newXp = user!.xp + xpToAdd;
-
-    let newLevel = user!.level;
-    if (newXp >= 1000) {
-        newLevel += 1;
+    if (!user) {
+        throw createError("Usuário não encontrado",404);
     }
+
+    const newXp = user.xp + xpToAdd;
+
+    const newLevel = Math.floor(newXp / 1000) + 1;
+
     const updatedUser = await update({ xp: newXp, level: newLevel }, userId);
 
     return updatedUser;

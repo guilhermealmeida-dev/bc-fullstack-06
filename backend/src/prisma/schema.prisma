@@ -42,7 +42,7 @@ model UserArchievement {
 
 model Archievement {
   id               String             @id @default(uuid())
-  name             String @unique
+  name             String             @unique
   criterion        String
   UserArchievement UserArchievement[]
 
@@ -104,7 +104,7 @@ model ActivityParticipant {
 
 model ActivityType {
   id          String       @id @default(uuid())
-  name        String
+  name        String       @unique()
   description String
   image       String
   Preference  Preference[]

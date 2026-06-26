@@ -9,12 +9,13 @@ import { formatAddress } from '../utils/format-address';
 import { getUserPreferencesService } from '../services/user-service';
 import { requestBodyValidator } from '../middlewares/request-body-validator';
 import { createActivityValidation } from '../validations/create-activity-validator';
-import { requestFileValidator } from '../middlewares/requeste-file-validator';
+import { requestTypeFileValidator } from '../middlewares/requeste-type-file-validator';
 import { generateConfirmationCode } from '../utils/generate-confirmation-code';
 import ActivityUpdate from '../types/activity/activity-update';
 import { UpdateActivityValidation } from '../validations/update-activity-validation';
 import activityAddresse from '../types/activity/activity-addresse';
 import { findActivityTypeById } from '../repository/activity-type-repository';
+import { createError } from '../utils/create-error';
 
 export function activityController(server: Express) {
     const router = Router();
@@ -200,14 +201,14 @@ export function activityController(server: Express) {
         }
     });
 
-    router.post("/new", upload.single("image"), requestBodyValidator(createActivityValidation), requestFileValidator(imageValidation), async function (request, response, next: NextFunction) {
+    router.post("/new", upload.single("image"), requestBodyValidator(createActivityValidation), requestTypeFileValidator(imageValidation), async function (request, response, next: NextFunction) {
         try {
             const userId = request.payload?.id as string;
             const image = request.file;
+            if (!image) throw createError("Informe os campos obrigatórios corretamente",404);
 
-            let { title, description, typeId, address, scheduledDate, private: isPrivate } = request.body;
-
-            const fileUrl = await uploadImage(image!, userId, "activity");
+            const { title, description, typeId, address, scheduledDate, private: isPrivate } = request.body;
+            const fileUrl = await uploadImage(image!, userId, 'activity');
 
             const formattedAddress = formatAddress(address);
             const confirmationCode = generateConfirmationCode();
@@ -247,7 +248,7 @@ export function activityController(server: Express) {
         }
     });
 
-    router.put("/:id/update", upload.single("image"), requestFileValidator(imageValidation), async function (request, response, next: NextFunction) {
+    router.put("/:id/update", upload.single("image"), requestTypeFileValidator(imageValidation), async function (request, response, next: NextFunction) {
         try {
             const userId = request.payload?.id as string;
             const activityId = request.params.id as string;

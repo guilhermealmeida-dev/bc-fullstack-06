@@ -9,7 +9,7 @@ import path from "path";
 import { activityController } from './controllers/activity-controller';
 import { logError } from './middlewares/log-error';
 import { setupSwagger } from './setup-swagger';
-import { seedAchievements } from './prisma/seed';
+import { seedDB } from './prisma/seed';
 
 const server = express();
 
@@ -31,7 +31,7 @@ server.use(errorHandler);
 // Resources
 server.use("/public", express.static(path.join(__dirname, "../public")));
 createBucket();
-seedAchievements();
+seedDB();
 
 const port = process.env.PORT;
 

@@ -222,14 +222,20 @@ export async function getParticipantsActivyService(activityId: string) {
 }
 
 export async function createActivityService(activity: Activity) {
-    const activityData = await createActivityRepository(activity);
+    const activityType = await findActivityTypeById(activity.typeId);
+
+    if (!activityType) {
+        throw createError("Tipo de atividade não existe", 403);
+    }
 
     const activities = await findAllActiviesUserCreatorRepository(activity.creatorId);
     if (activities.length === 0) {
-        await giveAchievementService(activity.creatorId, OptionsAchievements.FIRST_ACTIVITY_CREATED, 50);
+        await giveAchievementService(activity.creatorId, OptionsAchievements.FIRST_ACTIVITY_CREATED, 100);
     }
 
     await giveXpService(activity.creatorId, 20);
+    
+    const activityData = await createActivityRepository(activity);
 
     return {
         id: activityData.id,
@@ -394,7 +400,7 @@ export async function check_in(userId: string, activityId: string, code: string)
     if (subscription.confirmedAt) throw createError("Você já confirmou sua participação nesta atividade", 409);
     if (activity.completedAt) throw createError("Não é possível confirmar presença em uma atividade concluída", 409);
     if (!subscription.aproved) throw createError("Apenas participantes aprovados na atividade podem fazer check-in", 403);
-   
+
     if (code !== activity.confirmationCode) throw createError("Código de confirmação incorreto", 400);
 
     await updateConfirmedAtActivityParticipant(subscription.id);

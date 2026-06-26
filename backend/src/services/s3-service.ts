@@ -46,10 +46,10 @@ export async function uploadImage(
   let filePath: string;
 
   if (type === "profile") {
-    filePath = `profileImages/${id}/profile..${extension}`;
+    filePath = `profileImages/${id}/profile${extension}`;
   } else {
 
-    filePath = `activityImages/${id}/activityImage.${extension}`;
+    filePath = `activityImages/${id}/activityImage${extension}`;
   }
 
   const uploadParams = {

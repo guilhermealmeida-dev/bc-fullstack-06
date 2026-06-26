@@ -506,6 +506,15 @@
 
   "ActivityCreationSchema": {
     "type": "object",
+    "required": [
+      "title",
+      "description",
+      "typeId",
+      "address",
+      "image",
+      "scheduledDate",
+      "private"
+    ],
     "properties": {
       "title": {
         "type": "string",
@@ -537,6 +546,7 @@
       },
       "private": {
         "type": "boolean",
+        "default": false,
         "description": "Define se a atividade é privada (true) ou pública (false)"
       }
     }

@@ -8,5 +8,13 @@ export async function setupSwagger(app: Express) {
     path.join(__dirname, "./docs/swagger.json")
   );
 
-  app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  app.use(
+    "/docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerDocument, {
+      swaggerOptions: {
+        persistAuthorization: true
+      }
+    })
+  );
 }
