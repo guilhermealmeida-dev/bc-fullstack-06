@@ -10,7 +10,7 @@
     "generate-doc": "ts-node src/generate-doc.ts",
     "migrate": "npx prisma migrate dev --config=./src/prisma.config.ts",
     "generate": "npx prisma generate --config=./src/prisma.config.ts",
-    "reset":"npx prisma migrate reset --config=./src/prisma.config.ts",
+    "reset": "npx prisma migrate reset --config=./src/prisma.config.ts",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,13 +19,13 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/multer": "^1.4.12",
+    "@types/multer": "^2.1.0",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/uuid": "^10.0.0",
     "nodemon": "^3.1.9",
     "prisma": "^7.0.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.775.0",
@@ -35,13 +35,13 @@
     "@types/express": "^5.0.1",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.6.1",
-    "express": "^4.21.2",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "jsonwebtoken": "^9.0.2",
-    "multer": "^1.4.5-lts.2",
+    "multer": "^2.2.0",
     "pg": "^8.16.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "zod": "^3.24.2"
+    "zod": "^4.4.3"
   }
 }
