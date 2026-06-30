@@ -1,6 +1,6 @@
 import { Express, Router, NextFunction } from 'express';
 import authGuard from '../middlewares/auth-guard';
-import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getAllActiviesUserCreatorPaginatedService, getActiviesUserParticipantPaginatedService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService, getAllActiviesUserCreatorService, getAllActiviesUserParticipantService, removeSubscriptionInActivityService, removeActivityService, editActivityService, concludeActivityService, aproveSubsctiption, check_in } from '../services/activity-service';
+import { countActivitiesCreatorService, countActivitiesParticipantService, countActivitiesTypeService, createActivityService, getAllActiviesUserCreatorPaginatedService, getActiviesUserParticipantPaginatedService, getActivitiesAllFilterTypeOrderByService, getActivitiesPaginatedFilterOrderByService, getActivityTypesService, getParticipantsActivyService, registerUserInActivityService, getAllActiviesUserCreatorService, getAllActiviesUserParticipantService, removeSubscriptionInActivityService, removeActivityService, editActivityService, concludeActivityService, aproveSubsctiptionService, check_inService } from '../services/activity-service';
 import Activity from '../types/activity/activity-creation';
 import imageValidation from '../validations/image-validation';
 import { uploadImage } from '../services/s3-service';
@@ -230,7 +230,6 @@ export function activityController(server: Express) {
             const activity = await createActivityService(activityCreation);
 
             response.status(201).json(activity);
-
         } catch (error) {
             next(error);
         }
@@ -314,7 +313,7 @@ export function activityController(server: Express) {
             const userId = request.payload?.id as string;
             const activityId = request.params.id;
             const { participantId } = request.body;
-            await aproveSubsctiption(userId, activityId, participantId);
+            await aproveSubsctiptionService(userId, activityId, participantId);
             response.status(200).json({ message: "Solicitação de participação aprovada com sucesso." });
         } catch (error) {
             next(error);
@@ -326,7 +325,7 @@ export function activityController(server: Express) {
             const userId = request.payload?.id as string;
             const activityId = request.params.id;
             const { confirmationCode } = request.body;
-            await check_in(userId, activityId, confirmationCode);
+            await check_inService(userId, activityId, confirmationCode);
             response.status(200).json({ message: "Participação confirmada com sucesso." });
         } catch (error) {
             next(error);

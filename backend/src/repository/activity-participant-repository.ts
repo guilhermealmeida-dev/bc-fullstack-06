@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma as prismaClient } from "../prisma/prisma-client";
 
 export async function findActivityParticipant(userId: string, activityId: string) {
@@ -6,6 +7,12 @@ export async function findActivityParticipant(userId: string, activityId: string
             userId,
             activityId
         }
+    });
+}
+
+export async function countSubscriptionRepository(where: Prisma.ActivityParticipantWhereInput) {
+    return await prismaClient.activityParticipant.count({
+        where
     });
 }
 

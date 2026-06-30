@@ -30,8 +30,8 @@ server.use(errorHandler);
 
 // Resources
 server.use("/public", express.static(path.join(__dirname, "../public")));
-createBucket();
-seedDB();
+// createBucket();
+// seedDB();
 
 const port = process.env.PORT;
 

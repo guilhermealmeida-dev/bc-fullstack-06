@@ -1,14 +1,15 @@
 import { Prisma } from "@prisma/client";
-import { createActivityParticipant, deleteActivityParticipant, findActivityParticipant, updateActivityParticipant, updateConfirmedAtActivityParticipant } from "../repository/activity-participant-repository";
+import { countSubscriptionRepository, createActivityParticipant, deleteActivityParticipant, findActivityParticipant, updateActivityParticipant, updateConfirmedAtActivityParticipant } from "../repository/activity-participant-repository";
 import { checkActivityExistsRepository, countActivitiesRepository, createActivityRepository, findActivityByIdRepository, findAllActiviesUserCreatorPaginatedRepository, findAllActiviesUserCreatorRepository, findActiviesUserParticipantPaginatedRepository, findAllActivitiesFilterTypeOrderByRepository, findActivitiesFilterTypeOrderByPaginatedRepository, getParticipantsActivitityRepository, findAllActiviesUserParticipantRepository, deleteActivityByIdRepository, updateActivityRepository } from "../repository/activity-repository";
 import { findActivityTypeById, getActivityTypes } from "../repository/activity-type-repository";
 import Activity from "../types/activity/activity-creation";
-import { giveAchievementService, giveXpService } from "./user-service";
+import { giveXPAndAchievementService, giveXpService } from "./user-service";
 import { getPreferencesByIdRepository } from "../repository/preference-repository";
 import { createError } from "../utils/create-error";
 import { OptionsAchievements } from "../types/achievement/archievement";
 import { formatSubscriptionStatus } from "../utils/format-subscription-status";
 import ActivityUpdate from "../types/activity/activity-update";
+import { findArchivementUserByNameRepository } from "../repository/user-archievement-repository";
 
 export async function getActivityTypesService() {
     return await getActivityTypes();
@@ -228,13 +229,8 @@ export async function createActivityService(activity: Activity) {
         throw createError("Tipo de atividade não existe", 403);
     }
 
-    const activities = await findAllActiviesUserCreatorRepository(activity.creatorId);
-    if (activities.length === 0) {
-        await giveAchievementService(activity.creatorId, OptionsAchievements.FIRST_ACTIVITY_CREATED, 100);
-    }
+    await giveXPAndAchievementService(activity.creatorId, OptionsAchievements.FIRST_ACTIVITY_CREATED, 20, 150);
 
-    await giveXpService(activity.creatorId, 20);
-    
     const activityData = await createActivityRepository(activity);
 
     return {
@@ -263,10 +259,12 @@ export async function createActivityService(activity: Activity) {
 
 export async function removeActivityService(activityId: string, userId: string) {
     const activity = await findActivityByIdRepository(activityId);
+    //atividade existe?
     if (!activity || activity.deletedAt) {
         throw createError("Atividade não encontrada!", 404);
     }
 
+    //é o criador?
     if (activity.creatorId !== userId) {
         throw createError("Apenas o criador da atividade pode exclui-la.", 409);
     }
@@ -278,14 +276,17 @@ export async function removeActivityService(activityId: string, userId: string) 
 export async function editActivityService(activityId: string, userId: string, activityData: ActivityUpdate) {
     const activity = await findActivityByIdRepository(activityId);
 
+    //atividade existe?
     if (!activity || activity.deletedAt) {
         throw createError("Atividade não encontrada!", 404);
     }
 
+    //é o criador?
     if (activity.creatorId !== userId) {
         throw createError("Apenas o criador da atividade pode editala.", 409);
     }
 
+    //tipo existe?
     if (activity.typeId) {
         const activityType = await findActivityTypeById(activity.typeId);
         if (!activityType) {
@@ -306,8 +307,8 @@ export async function registerUserInActivityService(userId: string, activityId: 
         throw createError("O criador da atividade não pode se inscrever.", 400);
     }
 
-    const existingParticipant = await findActivityParticipant(userId, activityId);
-    if (existingParticipant) {
+    const subscription = await findActivityParticipant(userId, activityId);
+    if (subscription) {
         throw createError("Você já se registrou nesta atividade.", 409);
     }
 
@@ -315,13 +316,7 @@ export async function registerUserInActivityService(userId: string, activityId: 
         throw createError("Não é possível se inscrever em uma atividade concluída.", 400);
     }
 
-    const userRegistrations = await getAllActiviesUserParticipantService(userId);
-    if (!userRegistrations) {
-        await giveAchievementService(userId, OptionsAchievements.FIRST_INSCRIPTION, 50);
-    } else {
-        // Adiciona XP ao usuário
-        await giveXpService(userId, 20);
-    }
+    await giveXPAndAchievementService(userId, OptionsAchievements.FIRST_INSCRIPTION, 0, 400);
 
     let confirmedAt: Date | null = activity.private ? null : new Date();
     let aproved: boolean = activity.private ? false : true;
@@ -350,19 +345,28 @@ export async function removeSubscriptionInActivityService(userId: string, activi
 //Concluir uma atividade
 export async function concludeActivityService(activityId: string, userId: string) {
     const activity = await findActivityByIdRepository(activityId);
-    if (!activity) {
+    //atividade existe?
+    if (!activity || activity?.deletedAt) {
         throw createError("Atividade não encontrada.", 404);
     }
 
+    //é o criador?
     if (activity.creatorId !== userId) {
         throw createError("Apenas o criador pode concluí-la.", 403)
     }
+
+    //atividade j́a concluída?
+    if (activity.completedAt) {
+        return;
+    }
+
+    await giveXPAndAchievementService(userId, OptionsAchievements.FIRST_COMPLETED_ACTIVITY, 60, 100);
 
     await updateActivityRepository(activityId, { completedAt: new Date() });
 }
 
 //Aprovar uma inscrição
-export async function aproveSubsctiption(userId: string, activityId: string, participantId: string) {
+export async function aproveSubsctiptionService(userId: string, activityId: string, participantId: string) {
     const activity = await findActivityByIdRepository(activityId);
     const activityParticipant = await findActivityParticipant(participantId, activityId);
 
@@ -376,6 +380,11 @@ export async function aproveSubsctiption(userId: string, activityId: string, par
         throw createError("Atividade não encontrada", 404);
     }
 
+    //é publica
+    if (!activity?.private) {
+        return;
+    }
+
     //é o criador?
     if (activity.creatorId !== userId) {
         throw createError("Apenas o criador pode aprovar um participante", 403);
@@ -386,14 +395,15 @@ export async function aproveSubsctiption(userId: string, activityId: string, par
         throw createError("A atividade já foi encerrada", 403);
     }
 
-    await updateActivityParticipant(activityParticipant.id, activityParticipant.aproved ? false : true);
+    await giveXPAndAchievementService(userId, OptionsAchievements.FIRST_APPROVAL, 20, 50);
+
+    await updateActivityParticipant(activityParticipant.id, true);
 }
 
 // Fazer check-in em uma atividade
-export async function check_in(userId: string, activityId: string, code: string) {
+export async function check_inService(userId: string, activityId: string, code: string) {
     const activity = await findActivityByIdRepository(activityId);
     const subscription = await findActivityParticipant(userId, activityId);
-    console.log(subscription);
 
     if (!subscription) throw createError("Inscrição não encontrada", 404);
     if (!activity) throw createError("Atividade não encontrada", 404);
@@ -402,6 +412,10 @@ export async function check_in(userId: string, activityId: string, code: string)
     if (!subscription.aproved) throw createError("Apenas participantes aprovados na atividade podem fazer check-in", 403);
 
     if (code !== activity.confirmationCode) throw createError("Código de confirmação incorreto", 400);
+
+    await giveXPAndAchievementService(userId, OptionsAchievements.FIRST_CHECKIN, 50,150);
+
+    await giveXpService(activity.creatorId, 10);
 
     await updateConfirmedAtActivityParticipant(subscription.id);
 }

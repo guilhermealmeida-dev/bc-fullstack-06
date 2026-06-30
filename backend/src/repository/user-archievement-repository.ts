@@ -1,5 +1,5 @@
 import {prisma as prismaClient} from "../prisma/prisma-client";
-import { Archievement } from "../types/achievement/archievement";
+import { Archievement, OptionsAchievements } from "../types/achievement/archievement";
 
 export async function assignAchievementToUser(userId: string, achievementId: string) {
     return await prismaClient.userArchievement.create({
@@ -10,9 +10,9 @@ export async function assignAchievementToUser(userId: string, achievementId: str
     });
 }
 
-export async function findArchivementUser(
+export async function findArchivementUserByNameRepository(
   userId: string, 
-  achievementName: string
+  achievementName: OptionsAchievements
 ): Promise<Archievement | null> {
   const existingAchievement = await prismaClient.userArchievement.findFirst({
     where: {

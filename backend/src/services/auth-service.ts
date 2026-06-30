@@ -3,6 +3,8 @@ import { AuthRegister } from "../types/auth/auth-register";
 import { AuthLogin } from "../types/auth/auth-login";
 import bcrypt from "bcryptjs";
 import { createError } from "../utils/create-error";
+import { giveXPAndAchievementService } from "./user-service";
+import { OptionsAchievements } from "../types/achievement/archievement";
 
 export async function register(data: AuthRegister) {
 
@@ -22,7 +24,10 @@ export async function register(data: AuthRegister) {
         avatar: `${process.env.SERVER_URL}:${process.env.PORT}/public/images/profile.jpeg`
     }
 
-    return create(userToCreate);
+    const user = await create(userToCreate);
+    await giveXPAndAchievementService(user.id, OptionsAchievements.ACCOUNT_CREATED, 0, 100);
+    return user;
+
 }
 
 export async function login(data: AuthLogin) {
@@ -34,7 +39,7 @@ export async function login(data: AuthLogin) {
     const isValidPassword = await bcrypt.compare(data.password, userDb.password);
     if (!isValidPassword) throw createError("Senha incorreta", 401);
 
-    const { password,deletedAt, ...user } = userDb;
+    const { password, deletedAt, ...user } = userDb;
 
     return user;
 }

@@ -14,7 +14,7 @@ export function authController(server: Express) {
         async (request: Request, response: Response, next: NextFunction) => {
             const userData: AuthRegister = request.body;
             try {
-                await register(userData);
+                const user=await register(userData);
                 response.status(201).json({ message: "Usuário criado com sucesso." });
                 return;
             } catch (error: any) {

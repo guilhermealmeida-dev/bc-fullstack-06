@@ -3,7 +3,7 @@ import userDataUpdate from "../types/user/user-data-update";
 import bcrypt from "bcryptjs";
 import { createPreferences, deletePreferencesById, getPreferencesByIdRepository } from "../repository/preference-repository";
 import { findValidActivityTypes } from "../repository/activity-type-repository";
-import { assignAchievementToUser, findArchivementUser } from "../repository/user-archievement-repository";
+import { assignAchievementToUser, findArchivementUserByNameRepository } from "../repository/user-archievement-repository";
 import { findAchievementByName } from "../repository/archievement-repository";
 import { createError } from "../utils/create-error";
 import { OptionsAchievements } from "../types/achievement/archievement";
@@ -70,7 +70,7 @@ export async function giveXpService(userId: string, xpToAdd: number) {
     const user = await findById(userId);
 
     if (!user) {
-        throw createError("Usuário não encontrado",404);
+        throw createError("Usuário não encontrado", 404);
     }
 
     const newXp = user.xp + xpToAdd;
@@ -82,10 +82,11 @@ export async function giveXpService(userId: string, xpToAdd: number) {
     return updatedUser;
 }
 
-export async function giveAchievementService(userId: string, optionAchievement: OptionsAchievements, xp: number) {
-    const existingAchievement = await findArchivementUser(userId, optionAchievement);
+export async function giveXPAndAchievementService(userId: string, optionAchievement: OptionsAchievements, xp: number, xpMax: number) {
+    const existingAchievement = await findArchivementUserByNameRepository(userId, optionAchievement);
 
     if (existingAchievement) {
+        await giveXpService(userId, xp);
         return;
     }
 
@@ -96,6 +97,6 @@ export async function giveAchievementService(userId: string, optionAchievement: 
     }
 
     await assignAchievementToUser(userId, achievement.id);
-    await giveXpService(userId, xp);
+    await giveXpService(userId, xpMax);
     return achievement;
 }
