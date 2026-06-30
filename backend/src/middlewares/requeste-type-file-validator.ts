@@ -9,7 +9,7 @@ export function requestTypeFileValidator(schema: ZodSchema) {
 
       if (!schemaParse.success) {
         return next(
-          createError(schemaParse.error.errors[0].message, 400)
+          createError(schemaParse.error.message, 400)
         );
       }
     }

@@ -8,7 +8,7 @@ import { uploadImage } from "../services/s3-service";
 import imageValidation from "../validations/image-validation";
 import { createError } from "../utils/create-error";
 
-function userController(server: Express) {
+export function userController(server: Express) {
     const router = Router();
     router.use(authGuard);
 
@@ -67,7 +67,7 @@ function userController(server: Express) {
                 const result = imageValidation.safeParse(fileImage);
 
                 if (!result.success) {
-                    const error = createError(result.error.errors[0].message, 400);
+                    const error = createError(result.error.message, 400);
                     return next(error);
                 }
 
@@ -110,4 +110,3 @@ function userController(server: Express) {
 
     server.use("/user", router);
 }
-export default userController;
