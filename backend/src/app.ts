@@ -1,15 +1,12 @@
 import express, { json } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import { authController } from './controllers/auth-controller';
 import { errorHandler } from './middlewares/error-handler';
 import { userController } from './controllers/user-controller';
-import { createBucket } from './services/s3-service';
 import path from "path";
 import { activityController } from './controllers/activity-controller';
 import { logError } from './middlewares/log-error';
 import { setupSwagger } from './setup-swagger';
-import { seedDB } from './prisma/seed';
 
 const app = express();
 

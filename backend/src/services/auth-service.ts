@@ -27,7 +27,6 @@ export async function register(data: AuthRegister) {
     const user = await create(userToCreate);
     await giveXPAndAchievementService(user.id, OptionsAchievements.ACCOUNT_CREATED, 0, 100);
     return user;
-
 }
 
 export async function login(data: AuthLogin) {
