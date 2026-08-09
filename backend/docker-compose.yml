@@ -28,5 +28,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - postgresql-bootcamp-sysmap
-      - localstack-bootcamp-sysmap
+      postgresql-bootcamp-sysmap:
+        condition: service_healthy
+      localstack-bootcamp-sysmap:
+        condition: service_healthy
+    restart: always

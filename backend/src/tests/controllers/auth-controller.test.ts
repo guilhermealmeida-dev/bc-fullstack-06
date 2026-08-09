@@ -1,9 +1,9 @@
 import { describe, expect, test, jest } from '@jest/globals';
 import request from "supertest"
 import express, { json } from 'express';
-import { authController } from '../../src/controllers/auth-controller';
-import { login } from "../../src/services/auth-service";
-import { errorHandler } from '../../src/middlewares/error-handler';
+import { authController } from '../../controllers/auth-controller';
+import { login } from "../../services/auth-service";
+import { errorHandler } from '../../middlewares/error-handler';
 
 const app = express();
 
