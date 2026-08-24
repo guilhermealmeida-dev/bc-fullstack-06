@@ -17,6 +17,9 @@ app.use(cors());
 setupSwagger(app);
 
 // Controllers
+app.use("/no-response",()=>{
+
+})
 authController(app);
 userController(app);
 activityController(app);

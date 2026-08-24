@@ -5,6 +5,10 @@ import { prisma } from "./prisma-client";
 async function seedAchievements() {
   const achievements: Archievement[] = [
     { 
+      name: OptionsAchievements.ACCOUNT_CREATED, 
+      criterion: "Se inscrever pela primeira vez em uma atividade" 
+    },
+     { 
       name: OptionsAchievements.FIRST_INSCRIPTION, 
       criterion: "Criar sua primeira conta" 
     },

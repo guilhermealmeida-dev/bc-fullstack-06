@@ -1,35 +1,61 @@
 services:
+
   postgresql-bootcamp-sysmap:
     image: postgres
     container_name: db-bootcamp-sysmap
+
     environment:
-      - POSTGRES_USER=bootcamp
-      - POSTGRES_PASSWORD=bootcamp
-      - POSTGRES_DB=bootcamp
+      POSTGRES_USER: bootcamp
+      POSTGRES_PASSWORD: bootcamp
+      POSTGRES_DB: bootcamp
+
     ports:
       - "5432:5432"
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bootcamp -d bootcamp"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
   localstack-bootcamp-sysmap:
     image: localstack/localstack
     container_name: localstack-bootcamp-sysmap
+
     ports:
       - "4566:4566"
+
     environment:
       SERVICES: s3
       AWS_REGION: us-east-1
       AWS_ACCESS_KEY: test
       AWS_SECRET_ACCESS_KEY: test
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   api-sysmap:
     container_name: api_sysmap
+
     build:
       context: .
       dockerfile: Dockerfile
+
     env_file:
       - .env
+
     ports:
       - "3000:3000"
+
     depends_on:
       postgresql-bootcamp-sysmap:
         condition: service_healthy
+
       localstack-bootcamp-sysmap:
         condition: service_healthy
+
     restart: always
