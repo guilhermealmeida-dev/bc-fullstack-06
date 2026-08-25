@@ -5,7 +5,7 @@ type AuthHeaderProps = {
 };
 export function AuthHeader(props: AuthHeaderProps) {
   return (
-    <header className="flex flex-col w-full gap-3 ">
+    <header className="flex flex-col gap-3 max-w-md">
       <p className="uppercase font-bold text-[32px] leading-9 w-full">
         {props.title}
       </p>

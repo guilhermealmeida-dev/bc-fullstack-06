@@ -24,32 +24,36 @@ import { Alert } from "@/components/Alert";
 import { Link } from "react-router";
 import { MessageType } from "@/types/message.type";
 
-const LoginSchema = z.object({
+const RegisterSchema = z.object({
+  name: z.string(),
+  cpf: z.string().length(11, "Cpf inválido"),
   email: z.email("Digite um email válido."),
   password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres."),
 });
 
-type LoginForm = z.infer<typeof LoginSchema>;
+type RegisterForm = z.infer<typeof RegisterSchema>;
 
-export function LoginPage() {
+export function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [messageType, setMessagetype] = useState<MessageType | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const form = useForm<LoginForm>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<RegisterForm>({
+    resolver: zodResolver(RegisterSchema),
 
     defaultValues: {
+      name: "",
+      cpf: "",
       email: "",
       password: "",
     },
   });
 
-  async function onSubmit(data: LoginForm) {
+  async function onSubmit(data: RegisterForm) {
     setMessagetype(null);
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/auth/sign-in", {
+      const response = await fetch("http://localhost:3000/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,13 +67,8 @@ export function LoginPage() {
         return;
       }
 
-      const user = await response.json();
-      setMessagetype({
-        message: "Usuario Logado com sucesso. Redirecionando",
-        isSucesses: true,
-      });
-
-      console.log(user);
+      const message = await response.json();
+      setMessagetype({ message: message, isSucesses: true });
     } catch (error) {
       setMessagetype({ message: "Erro na riquisição", isSucesses: false });
       console.log("Erro na riquisição;", error);
@@ -93,9 +92,9 @@ export function LoginPage() {
           />
         )}
         <AuthHeader
-          title=" Bem-vindo de volta!"
-          description=" Encontre parceiros para treinar ao ar livre."
-          tagline=" Conecte-se e comece agora!💪"
+          title="Crie sua conta"
+          description="Cadastre-se para encontrar parceiros de treino e começar a se exercitar ao ar livre."
+          tagline="Vamos juntos! 💪"
         />
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -103,6 +102,48 @@ export function LoginPage() {
         >
           <FieldGroup className="flex flex-col gap-5 border-gray-300 text-base placeholder:text-gray-400">
             <div id="inputs" className="flex flex-col gap-4">
+              <Field>
+                <FieldLabel
+                  htmlFor="name"
+                  className="text-[DM_Sans] font-semibold text-base leading-5"
+                >
+                  Nome <span className="text-red-500">*</span>
+                </FieldLabel>
+                <Input
+                  id="name"
+                  type="text"
+                  required
+                  placeholder="Ex: João Silva"
+                  title="Informe o seu nome!"
+                  className="h-12"
+                  {...form.register("name")}
+                />
+
+                {form.formState.errors.name && (
+                  <FieldError>{form.formState.errors.name.message}</FieldError>
+                )}
+              </Field>
+              <Field>
+                <FieldLabel
+                  htmlFor="cpf"
+                  className="text-[DM_Sans] font-semibold text-base leading-5"
+                >
+                  CPF <span className="text-red-500">*</span>
+                </FieldLabel>
+                <Input
+                  id="cpf"
+                  type="text"
+                  required
+                  placeholder="Ex.: 123.456.789-01"
+                  title="Informe o seu cpf!"
+                  className="h-12"
+                  {...form.register("cpf")}
+                />
+
+                {form.formState.errors.cpf && (
+                  <FieldError>{form.formState.errors.cpf.message}</FieldError>
+                )}
+              </Field>
               <Field>
                 <FieldLabel
                   htmlFor="email"
@@ -165,16 +206,16 @@ export function LoginPage() {
             <Button type="submit" className="bg-[#00BC7D] h-12">
               <span className="flex items-center gap-3 leading-6 font-bold font-[DM_Sans] text-base text-white">
                 {loading && <Loader2 className="animate-spin" />}
-                {loading ? "Entrando..." : "Entrar"}
+                {loading ? "Cadastrando..." : "Cadastrar"}
               </span>
             </Button>
           </FieldGroup>
         </form>
         <div className="text-cente">
           <p className="font-[DM_Sans] text-[12px] leading-5 font-m text-center">
-            Ainda não tem uma conta?{" "}
-            <Link to="/register">
-              <span className="font-bold">Cadastre-se</span>
+            Já tem uma conta?{" "}
+            <Link to="/">
+              <span className="font-bold">Faça login</span>
             </Link>
           </p>
         </div>

@@ -1,12 +1,10 @@
 import React from "react";
 
-type AuthLayoutProps = {
-  children: React.ReactNode;
-};
 
 import authImage from "../assets/images/auth-init.png";
+import { Outlet } from "react-router";
 
-export function AuthLayout({ children }: AuthLayoutProps) {
+export function AuthLayout() {
   return (
     <div
       id="auth-layout"
@@ -27,7 +25,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         id="auth-content"
         className="flex-1 flex items-center justify-center p-8"
       >
-        {children}
+        <Outlet/>
       </div>
     </div>
   );
