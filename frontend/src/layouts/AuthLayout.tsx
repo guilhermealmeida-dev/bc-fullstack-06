@@ -1,6 +1,3 @@
-import React from "react";
-
-
 import authImage from "../assets/images/auth-init.png";
 import { Outlet } from "react-router";
 
@@ -8,7 +5,7 @@ export function AuthLayout() {
   return (
     <div
       id="auth-layout"
-      className="flex flex-col overflow-auto bg-white lg:flex-row lg:overflow-hidden lg:h-screen"
+      className="flex flex-col overflow-auto bg-white lg:flex-row lg:overflow-hidden lg:h-screen dark:bg-gray-800"
     >
       <div
         id="auth-image"
