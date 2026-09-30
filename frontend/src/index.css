@@ -1,8 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+
 @import "@fontsource-variable/geist";
+@import "@fontsource/bebas-neue";
+@import "@fontsource-variable/dm-sans";
+
+@theme {
+  --font-bebas: "Bebas Neue", sans-serif;
+  --font-dm-sans: "DM Sans", sans-serif;
+}
 
 @custom-variant dark (&:is(.dark *));
 

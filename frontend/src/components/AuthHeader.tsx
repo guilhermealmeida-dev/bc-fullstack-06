@@ -3,6 +3,7 @@ type AuthHeaderProps = {
   description: string;
   tagline: string;
 };
+
 export function AuthHeader(props: AuthHeaderProps) {
   return (
     <header className="flex flex-col gap-3 max-w-md">

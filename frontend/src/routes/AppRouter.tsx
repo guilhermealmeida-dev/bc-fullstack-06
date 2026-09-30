@@ -5,6 +5,7 @@ import { AuthLayout } from "@/layouts/AuthLayout";
 import { HomePage } from "@/pages/HomePage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoutes";
+import { MainLayout } from "@/layouts/MainLayout";
 
 export function AppRouter() {
   return (
@@ -12,12 +13,15 @@ export function AppRouter() {
       <Routes>
         <Route element={<PublicRoute />}>
           <Route element={<AuthLayout />}>
-            <Route index path="/" element={<LoginPage />} />
+            <Route path="/" index element={<LoginPage />} />
             <Route path="register" element={<RegisterPage />} />
           </Route>
         </Route>
+
         <Route element={<ProtectedRoute />}>
-          <Route path="/home" element={<HomePage />} />
+          <Route element={<MainLayout />}>
+            <Route path="/home" element={<HomePage />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
