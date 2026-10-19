@@ -21,7 +21,7 @@ import { useState } from "react";
 import { Branding } from "@/components/Branding";
 import { AuthHeader } from "@/components/AuthHeader";
 import { Alert } from "@/components/Alert";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { MessageType } from "@/types/message.type";
 
 const LoginSchema = z.object({
@@ -35,6 +35,7 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [messageType, setMessagetype] = useState<MessageType | null>(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(LoginSchema),
@@ -64,12 +65,11 @@ export function LoginPage() {
       }
 
       const user = await response.json();
-      setMessagetype({
-        message: "Usuario Logado com sucesso. Redirecionando",
-        isSucesses: true,
+      localStorage.setItem("user", user);
+      navigate("/home", {
+        replace: true,
+        state: { message: "Usuario logado com sucesso" },
       });
-
-      console.log(user);
     } catch (error) {
       setMessagetype({ message: "Erro na riquisição", isSucesses: false });
       console.log("Erro na riquisição;", error);
@@ -99,7 +99,7 @@ export function LoginPage() {
         />
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full max-w-md"
+          className="w-full max-w-md "
         >
           <FieldGroup className="flex flex-col gap-5 border-gray-300 text-base placeholder:text-gray-400">
             <div id="inputs" className="flex flex-col gap-4">
@@ -162,7 +162,7 @@ export function LoginPage() {
                 )}
               </Field>
             </div>
-            <Button type="submit" className="bg-[#00BC7D] h-12">
+            <Button type="submit" className="bg-[#00BC7D] h-12 hover:bg-green-500">
               <span className="flex items-center gap-3 leading-6 font-bold font-[DM_Sans] text-base text-white">
                 {loading && <Loader2 className="animate-spin" />}
                 {loading ? "Entrando..." : "Entrar"}
@@ -174,7 +174,7 @@ export function LoginPage() {
           <p className="font-[DM_Sans] text-[12px] leading-5 font-m text-center">
             Ainda não tem uma conta?{" "}
             <Link to="/register">
-              <span className="font-bold">Cadastre-se</span>
+              <span className="font-bold ">Cadastre-se</span>
             </Link>
           </p>
         </div>

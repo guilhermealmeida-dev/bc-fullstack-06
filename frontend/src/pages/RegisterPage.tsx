@@ -70,7 +70,7 @@ export function RegisterPage() {
       const message = await response.json();
       setMessagetype({ message: message, isSucesses: true });
     } catch (error) {
-      setMessagetype({ message: "Erro na riquisição", isSucesses: false });
+      setMessagetype({ message: "Erro na requisição", isSucesses: false });
       console.log("Erro na riquisição;", error);
       return;
     } finally {
@@ -203,7 +203,10 @@ export function RegisterPage() {
                 )}
               </Field>
             </div>
-            <Button type="submit" className="bg-[#00BC7D] h-12">
+            <Button
+              type="submit"
+              className="bg-[#00BC7D] h-12 hover:bg-green-500"
+            >
               <span className="flex items-center gap-3 leading-6 font-bold font-[DM_Sans] text-base text-white">
                 {loading && <Loader2 className="animate-spin" />}
                 {loading ? "Cadastrando..." : "Cadastrar"}
